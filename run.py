@@ -24,9 +24,8 @@ from non_stitch_prepro import main
 kernel_size = 340
 
 stitched_scale = 1
-
-vertical_clip_fraction = 0.265
-horizontal_clip_fraction = 0.3
+vertical_clip_fraction = 0
+horizontal_clip_fraction = 0
 
 ##
 ## LOAD RESOURCES
@@ -54,6 +53,14 @@ parser.add_argument(
 )
 parser.add_argument(
     "--ref", action="store_true", help="Whether the board is a reference board"
+)
+
+parser.add_argument(
+    "--skip_prepro", action="store_true", help="Skip preprocessing step"
+)
+
+parser.add_argument(
+    "-b", "--barcode", type=str, default=None, help="Board barcode. Will attempt to parse from board if none is passed"
 )
 
 if __name__ == "__main__":
@@ -103,21 +110,34 @@ if __name__ == "__main__":
                 logger.info("Scanning images")
                 images = machine.get_images(camera)
 
-        barcode = None
-        try:
-            barcode = scan_data_matrix(images[10, 3])
-        except Exception as e:
-            logger.critical(e)
-        if barcode is not None:
-            logger.info(f"Identified barcode {barcode}")
-        else:
-            barcode = "Not Found"
-            logger.critical("Could not find barcode in image")
+        # Beep
+        logger.info("Finished, exiting...")
+        if not args.silent:
+            for i in range(5):
+                print("\a")
+                time.sleep(1)
 
-        start_time = datetime.datetime.now()
-        folder = os.path.join(
-            config["output_directory"], barcode + "_" + str(start_time)
-        )
+        if args.barcode == None:
+            barcode = None
+            try:
+                barcode = scan_data_matrix(images[1, 3])
+            except Exception as e:
+                logger.critical(e)
+            if barcode is not None:
+                logger.info(f"Identified barcode {barcode}")
+            else:
+                barcode = "Not Found"
+                logger.critical("Could not find barcode in image")
+
+            start_time = datetime.datetime.now()
+            folder = os.path.join(
+                config["output_directory"], barcode + "_" + str(start_time)
+            )
+        else:
+            start_time = datetime.datetime.now()
+            folder = os.path.join(
+                config["output_directory"], args.barcode + "_" + str(start_time)
+            )
 
         # Saving images
         logger.info("Saving images")
@@ -133,19 +153,13 @@ if __name__ == "__main__":
             logger.info("Creating grid")
             create_grid(images, os.path.join(folder, "grid.jpg"), stitched_scale)
 
-        logger.info("Adjusting and cropping images")
-        main(
-            images,
-            vertical_clip_fraction,
-            horizontal_clip_fraction,
-            kernel_size=kernel_size,
-            output_dir=folder,
-            is_baseline=args.ref,
-        )
-
-        # Beep
-        logger.info("Finished, exiting...")
-        if not args.silent:
-            for i in range(5):
-                print("\a")
-                time.sleep(1)
+        if not args.skip_prepro:
+            logger.info("Adjusting and cropping images")
+            main(
+                images,
+                vertical_clip_fraction,
+                horizontal_clip_fraction,
+                kernel_size=kernel_size,
+                output_dir=folder,
+                is_baseline=args.ref,
+            )

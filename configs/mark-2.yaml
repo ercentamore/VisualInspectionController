@@ -7,14 +7,14 @@ machine:
   stabilize_delay: 0.15
   speed: 12000
   coordinates:
-    x_start: 180
-    x_end: 0
-    x_inc: -20
-    y_start: 0
-    y_end: 160
-    y_inc: 10
+    x_start: 75
+    x_end: 253
+    x_inc: 44.5
+    y_start: 30
+    y_end: 187.5
+    y_inc: 22.5
   home:
-  - G28 XY
+  - G28 XY  
   - M400
   - M906 X2000 Y2000
   - M203 X15 Y15

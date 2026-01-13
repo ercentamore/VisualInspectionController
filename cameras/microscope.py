@@ -62,7 +62,7 @@ class Microscope(Camera):
         segment = self.queue.get()
         logger.debug("Image captured")
 
-        # segment = cv2.rotate(segment, cv2.ROTATE_180)
+        segment = cv2.rotate(segment, cv2.ROTATE_180)
         # logger.debug('Image converted and rotated')
 
         return segment
