@@ -167,17 +167,17 @@ def get_circle_pattern(size_px: int, dpi: int = 200) -> np.ndarray:
 def keep_central_circles(circles, img, x_clip, y_clip):
     h, w = img.shape[:2]
 
-    xmin, xmax = x_clip, w - x_clip  # inner window x-range
-    ymin, ymax = y_clip, h - y_clip  # inner window y-range
+    circles = np.asarray(circles)
+    if circles.size == 0:
+        return circles.reshape(0, 2)
 
-    # boolean masks for the inner window
+    xmin, xmax = x_clip, w - x_clip
+    ymin, ymax = y_clip, h - y_clip
+
     in_x = (circles[:, 0] >= xmin) & (circles[:, 0] < xmax)
     in_y = (circles[:, 1] >= ymin) & (circles[:, 1] < ymax)
     mask = in_x & in_y
-
-    circles_filt = circles[mask]
-
-    return circles_filt
+    return circles[mask]
 
 
 def crop_image(img, x_clip, y_clip):
@@ -233,22 +233,49 @@ def blob_centers(
     return np.asarray(centres, dtype=int)  # shape (N, 2)
 
 
-def get_circles(pattern, img, pos_thresh, neg_thresh, pixels_to_shrink=3):
-    shr_pat = shrink_pattern(pattern, pixels_to_shrink)
+def get_circles(
+    pattern: np.ndarray,
+    img_bgr: np.ndarray,
+    pos_thresh,
+    neg_thresh,
+    pixels_to_shrink: int = 3,
+    mode: str = "black_vs_nonblack",
+) -> np.ndarray:
+    if img_bgr.ndim != 3 or img_bgr.shape[2] != 3:
+        raise ValueError(f"img_bgr must have shape (H, W, 3); got {img_bgr.shape}")
 
-    ker = shr_pat
-    thr = ker.sum() * pos_thresh
+    img = img_bgr.astype(np.float32, copy=False)
 
-    ker_inv = 1.0 - pattern
-    inv_thr = ker_inv.sum() * neg_thresh
+    ker = shrink_pattern(pattern, pixels_to_shrink).astype(np.float32)
+    ker_sum = float(ker.sum())
+    ker_inv = (1.0 - pattern).astype(np.float32)
+    ker_inv_sum = float(ker_inv.sum())
 
-    resp = cv2.filter2D(img, -1, ker)
-    resp_inv = cv2.filter2D(img, -1, ker_inv)
+    resp = cv2.filter2D(img, cv2.CV_32F, ker) / ker_sum         # (H,W,3) mean in-disk
+    resp_inv = cv2.filter2D(img, cv2.CV_32F, ker_inv) / ker_inv_sum  # (H,W,3) mean out-of-disk
 
-    det = (resp < thr) & (resp_inv > inv_thr)
+    # Interpret scalar thresholds in 0..255 space
+    pos = float(pos_thresh)
+    neg = float(neg_thresh)
+
+    if mode == "black_vs_nonblack":
+        # Hole: all channels dark  => max(channel) < pos
+        inside_black = resp.max(axis=2) < pos
+
+        # Surround: not black      => max(channel) > neg
+        outside_not_black = resp_inv.max(axis=2) > neg
+
+        det = inside_black & outside_not_black
+
+    elif mode == "soft":  # keep if you still want it
+        det = (resp.mean(axis=2) < pos) & (resp_inv.mean(axis=2) > neg)
+
+    else:
+        raise ValueError(f"Unknown mode '{mode}'")
+
     circle_coords = blob_centers(det, approx_marker_area=340, split_large=False)
-
     return circle_coords
+
 
 
 def shrink_pattern(pat: np.ndarray, pixels: int = 1) -> np.ndarray:
@@ -259,26 +286,33 @@ def shrink_pattern(pat: np.ndarray, pixels: int = 1) -> np.ndarray:
 
 
 def bidirectional_match(a: np.ndarray, b: np.ndarray, radius: float = 250):
+    a = np.asarray(a)
+    b = np.asarray(b)
+
+    if a.size == 0 or b.size == 0:
+        return (
+            np.empty((0, 2), dtype=a.dtype if a.size else np.float32),
+            np.empty((0, 2), dtype=b.dtype if b.size else np.float32),
+        )
+
     tree_a, tree_b = cKDTree(a), cKDTree(b)
 
-    # a -> b
     dist_ab, idx_ab = tree_b.query(a, distance_upper_bound=radius)
-    # b -> a
     dist_ba, idx_ba = tree_a.query(b, distance_upper_bound=radius)
 
     keep_ref, keep_new = [], []
     used_b = set()
 
     for i, (d, j) in enumerate(zip(dist_ab, idx_ab)):
-        if d <= radius and j < len(b):  # ai found a neighbour
-            # require mutual nearest and that bj not reused
+        if d <= radius and j < len(b):
             if idx_ba[j] == i and dist_ba[j] <= radius and j not in used_b:
                 keep_ref.append(a[i])
                 keep_new.append(b[j])
                 used_b.add(j)
 
-    if keep_ref:  # convert to arrays; else return empty (0, 2)
+    if keep_ref:
         return np.vstack(keep_ref), np.vstack(keep_new)
+
     return np.empty((0, 2), a.dtype), np.empty((0, 2), b.dtype)
 
 
@@ -399,45 +433,61 @@ def main(
         dtype=np.uint8,
     )
     for row_num, row in enumerate(images):
-        for col_num, image in enumerate(row):
-            image = Image.fromarray(images[row_num, col_num].astype(np.uint8))
+        for col_num, _ in enumerate(row):
+            # Raw tile as BGR (OpenCV convention)
+            tile_bgr_u8 = images[row_num, col_num].astype(np.uint8)
+    
+            # PIL image must be RGB
+            tile_rgb_u8 = cv2.cvtColor(tile_bgr_u8, cv2.COLOR_BGR2RGB)
+            image_pil = Image.fromarray(tile_rgb_u8)
+    
             if (row_num, col_num) in skip_set:
-                clipped_img = crop_image(np.array(image), horz_clip, vert_clip)
+                clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
                 print(f"image [{row_num}, {col_num}] skipped")
                 if is_baseline:
                     circles_ref.append(np.array([[0, 0]]))
             else:
-                bw_image = pil_to_gray_array(image)
+                # Detect using BGR float32
+                tile_bgr_f32 = tile_bgr_u8.astype(np.float32)
+    
                 circle_coords = get_circles(
                     circle_kernel,
-                    bw_image,
+                    tile_bgr_f32,
                     pos_thresh=positive_thresholds[col_num],
                     neg_thresh=negative_thresholds[col_num],
                     pixels_to_shrink=10,
+                    mode="soft",   # or "strict" if you pass per-channel thresholds
                 )
+    
                 circle_coords = keep_central_circles(
-                    circle_coords, bw_image, x_clip=150, y_clip=150
+                    circle_coords, tile_bgr_u8, x_clip=150, y_clip=150
                 )
+    
                 circle_coords = circle_coords[
                     np.lexsort((circle_coords[:, 1], circle_coords[:, 0]))
                 ]
+    
                 if is_baseline:
-                    clipped_img = crop_image(np.array(image), horz_clip, vert_clip)
+                    clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
                     circles_ref.append(circle_coords)
                 else:
                     c_coords, c_ref = bidirectional_match(
                         np.array(circle_coords),
                         np.array(circles_ref[row_num * columns + col_num]),
                     )
-                    aligned_image = align_image_general(
-                        image,
+    
+                    aligned_pil_rgb = align_image_general(
+                        image_pil,
                         src_pts=c_coords,
                         dst_pts=c_ref,
                         debug_id=f"r{row_num:02d}_c{col_num:02d}",
                     )
-                    clipped_img = crop_image(
-                        np.array(aligned_image), horz_clip, vert_clip
-                    )
+    
+                    aligned_rgb = np.asarray(aligned_pil_rgb)
+                    aligned_bgr = cv2.cvtColor(aligned_rgb, cv2.COLOR_RGB2BGR)
+    
+                    clipped_img = crop_image(aligned_bgr, horz_clip, vert_clip)
+    
             adjusted_clipped_images[rows - row_num - 1][col_num] = clipped_img
             pbar.update()
     # except:
@@ -536,3 +586,4 @@ if __name__ == "__main__":
 
     #                 with open('grid_search.txt', 'a') as f:
     #                     f.write(f"Successfully processed board {img} with: pos=[{pos_bounds[0]}, {pos_bounds[1]}], neg=[{neg_bounds[0]}, {neg_bounds[1]}]\n")
+
