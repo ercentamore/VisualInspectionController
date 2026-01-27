@@ -14,10 +14,22 @@ logger = logging.getLogger("camera")
 class Microscope(Camera):
     def __init__(self, config):
         self._id = config["id"]
+        self.commands = [
+            f"v4l2-ctl -d {self._id} -c auto_exposure=1",
+            f"v4l2-ctl -d {self._id} -c exposure_time_absolute=156"
+        ]
 
     def __enter__(self):
         # Kill other camera uses
         os.system("killall cheese")
+
+        # Settings
+        for command in self.commands:
+            logger.debug(f"Calling {command}")
+            rc = os.system(command)
+            if rc != 0:
+                raise RuntimeError(f"Command returned with code {rc}: {command}")
+
 
         # Open camera
         self.cap = cv2.VideoCapture(self._id)
