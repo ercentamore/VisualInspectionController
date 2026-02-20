@@ -375,9 +375,9 @@ def main(
     columns = len(images[0])
     print(f"num cols: {columns}")
 
-    positive_thresholds, negative_thresholds = compute_thresholds(
-        images, num_cols=columns
-    )
+    # positive_thresholds, negative_thresholds = compute_thresholds(
+    #     images, num_cols=columns
+    # )
 
     skip_set = {
         (0, 0),
@@ -453,8 +453,8 @@ def main(
                 circle_coords = get_circles(
                     circle_kernel,
                     tile_bgr_f32,
-                    pos_thresh=positive_thresholds[col_num],
-                    neg_thresh=negative_thresholds[col_num],
+                    pos_thresh=32,
+                    neg_thresh=115,
                     pixels_to_shrink=10,
                     mode="soft",   # or "strict" if you pass per-channel thresholds
                 )
