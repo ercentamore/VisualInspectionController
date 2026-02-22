@@ -2,6 +2,7 @@ import logging
 import math
 import os
 import pickle as pkl
+import argparse
 
 import cv2
 import matplotlib.pyplot as plt
@@ -364,7 +365,6 @@ def main(
     horz_clip_fraction: float,
     kernel_size: int,
     output_dir: str,
-    # image_num: int,
     is_baseline: bool = False,
 ):
     circle_kernel = get_circle_pattern(kernel_size)
@@ -511,14 +511,30 @@ def main(
 
 
 if __name__ == "__main__":
-    # Set up parameters
+
+    parser = argparse.ArgumentParser
+    parser.add_argument("-b", "--baseline", help = "creates a baseline image")
+    parser.add_argument("-i", "--input", help = "input image variable")
+    args = parser.parse_args()
+
+    if args.baseline:
+        is_baseline = True
+    else:
+        is_baseline = False
+
+    if args.input:
+        if type(args.input) == np.ndarray:
+            img = args.input
+        else:
+            print("Input image must be a numpy array.")
+    else:
+        print("No input found. Please provide a numpy file.")
+
+
     output_dir = "./Pictures"
-    image_num = 10
-    img = np.load(os.path.join(output_dir, f"images{image_num}.npy"))
     vert_clip_fraction = 0.265
     horz_clip_fraction = 0.3
     kernel_size = 340
-    is_baseline = True if image_num == 1 else False
 
     main(
         images=img,
@@ -526,7 +542,6 @@ if __name__ == "__main__":
         horz_clip_fraction=horz_clip_fraction,
         kernel_size=kernel_size,
         output_dir=output_dir,
-        image_num=image_num,
         is_baseline=is_baseline,
     )
 
