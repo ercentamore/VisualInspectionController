@@ -527,6 +527,7 @@ if __name__ == "__main__":
             print("img = args.input")
             img = args.input
         else:
+            print(args.input)
             print("Input image must be a numpy array.")
     else:
         print("No input found. Please provide a numpy file.")
