@@ -523,20 +523,16 @@ if __name__ == "__main__":
         is_baseline = False
 
     if args.input:
-        if type(args.input) == np.ndarray:
-            print("img = args.input")
-            img = args.input
-        else:
-            print(args.input)
-            print("Input image must be a numpy array.")
+        img_path = args.input
     else:
-        print("No input found. Please provide a numpy file.")
+        print("No input found. Please provide a path to a numpy file.")
 
 
     output_dir = "./Pictures"
     vert_clip_fraction = 0.265
     horz_clip_fraction = 0.3
     kernel_size = 340
+    img = np.load(f"{img_path}")
 
     main(
         images=img,
