@@ -529,8 +529,8 @@ if __name__ == "__main__":
 
 
     output_dir = "./Pictures"
-    vert_clip_fraction = 0.08
-    horz_clip_fraction = 0.08
+    vert_clip_fraction = 0.075
+    horz_clip_fraction = 0.075
     kernel_size = 340
     img = np.load(f"{img_path}")
 
