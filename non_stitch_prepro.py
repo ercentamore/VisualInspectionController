@@ -524,6 +524,7 @@ if __name__ == "__main__":
 
     if args.input:
         if type(args.input) == np.ndarray:
+            print("img = args.input")
             img = args.input
         else:
             print("Input image must be a numpy array.")
