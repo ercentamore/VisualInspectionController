@@ -512,7 +512,7 @@ def main(
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser
+    parser = argparse.ArgumentParser()
     parser.add_argument("-b", "--baseline", help = "creates a baseline image")
     parser.add_argument("-i", "--input", help = "input image variable")
     args = parser.parse_args()
