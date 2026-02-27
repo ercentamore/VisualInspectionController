@@ -1,1 +1,0 @@
-print("colab_test.py successfully reached")
