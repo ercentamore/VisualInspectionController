@@ -365,14 +365,15 @@ def main(
     client_secret,
     imgs_id,
     id_type,
+    out_folder,
     vert_clip_fraction: float,
     horz_clip_fraction: float,
     kernel_size: int,
-    output_dir: str,
     is_baseline: bool = False,
 ):
     
     from boxsdk import Client, OAuth2
+    import io
 
     oauth = OAuth2(
     client_id,
@@ -500,14 +501,15 @@ def main(
             np.save(os.path.join("./", "ref_image_array.npy"), adjusted_clipped_images)
             with open("circles_ref.pkl", "wb") as file:
                 pkl.dump(circles_ref, file)
-        elif output_dir is not None:
-            print("output dir exists")
+        elif out_folder is not None:
+            print("output folder exists")
             logger.debug("Saving...")
-            np.save(
-                os.path.join(output_dir, f"non-stitch-prepro-out.npy"),
-                adjusted_clipped_images,
-            )
-            print("image saved to output dir")
+            folder_id = out_folder
+            file_name = file_ids['name']
+            file_path = f"NEW {file_name}"
+
+            new_file = client.folder(folder_id).upload(file_path)
+            print(f'File "{new_file.name}" uploaded with ID {new_file.id}')
 
         return adjusted_clipped_images
 
@@ -648,14 +650,15 @@ def main(
                 np.save(os.path.join("./", "ref_image_array.npy"), adjusted_clipped_images)
                 with open("circles_ref.pkl", "wb") as file:
                     pkl.dump(circles_ref, file)
-            elif output_dir is not None:
-                print("output dir exists")
+            elif out_folder is not None:
+                print("output folder exists")
                 logger.debug("Saving...")
-                np.save(
-                    os.path.join(output_dir, f"non-stitch-prepro-out.npy"),
-                    adjusted_clipped_images,
-                )
-                print("image saved to output dir")
+                folder_id = out_folder
+                file_name = file_ids['name']
+                file_path = f"NEW {file_name}"
+
+                new_file = client.folder(folder_id).upload(file_path)
+                print(f'File "{new_file.name}" uploaded with ID {new_file.id}')
 
             return adjusted_clipped_images
 
@@ -664,11 +667,13 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-b", "--baseline", help = "creates a baseline image")
-    parser.add_argument("-i", "--input", help = "input file or folder ID (found in Box URL)")
+    parser.add_argument("-i", "--input", help = "Provide an input file or folder ID (found in Box URL)")
     parser.add_argument("-d", "--devtoken", help = "input Box Developer Token")
     parser.add_argument("-c", "--clientid", help = "input Boc Client ID")
     parser.add_argument("-s", "--clientsecret", help = "input Box Client Secret")
     parser.add_argument("-t", "--idtype", help = "Provide the Box ID type (file or folder)")
+    parser.add_argument("-o", "--outputfolder", help = "Provide the output folder's Box ID (0 for root)")
+
 
     args = parser.parse_args()
 
@@ -702,7 +707,11 @@ if __name__ == "__main__":
     else:
         print("Please provide a Box ID type: file or folder")
 
-    output_dir = "./Pictures"
+    if args.outputfolder:
+        out_folder = args.outputfolder
+    else:
+        print("Please provide a Box folder ID for output")
+
     vert_clip_fraction = 0.025
     horz_clip_fraction = 0.025
     kernel_size = 84
@@ -716,7 +725,6 @@ if __name__ == "__main__":
         vert_clip_fraction=vert_clip_fraction,
         horz_clip_fraction=horz_clip_fraction,
         kernel_size=kernel_size,
-        output_dir=output_dir,
         is_baseline=is_baseline,
     )
 

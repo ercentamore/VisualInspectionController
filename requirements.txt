@@ -15,4 +15,3 @@ requests
 pylibdmtx
 pyyaml
 pyserial
-io
