@@ -531,7 +531,7 @@ def main(
             for imgfile in numpy_file:
                 file_ids['id'].append(imgfile.id)
 
-        for idx in file_id['id']:
+        for idx in file_ids['id']:
             file_name = file_ids['name'][idx]
             file_id = file_ids['id'][idx]
 
