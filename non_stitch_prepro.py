@@ -531,8 +531,10 @@ def main(
             #save the id of the file
             for imgfile in numpy_file:
                 file_ids['id'].append(imgfile.id)
+            print(f"File IDs: {file_ids['id']}")
 
         for idx in range(len(file_ids['id'])):
+            print(f"File Index: {idx}/{len(file_ids['id'])}")
             file_name = file_ids['name'][idx]
             file_id = file_ids['id'][idx]
 
