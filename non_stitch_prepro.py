@@ -44,6 +44,9 @@ def align_image_general(
     src = np.array(src_pts, dtype=np.float32)
     dst = np.array(dst_pts, dtype=np.float32)
 
+    print(src.shape)
+    print(dst.shape)
+
     M, _ = cv2.estimateAffinePartial2D(
         src,
         dst,
