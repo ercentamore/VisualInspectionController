@@ -417,7 +417,7 @@ def main(
             print(f"Circles ref length: {len(circles_ref)}")
         else:
             circles_ref = []
-            is_baseline = False
+            print("Creating Baseline Images")
 
         logger.debug(
             f"Clipping images, from {total_image_shape} to {vert_clip}, {horz_clip} (fractions {vert_clip_fraction}, {horz_clip_fraction})"
@@ -498,6 +498,7 @@ def main(
         pbar.close()
 
         if is_baseline:
+            print("Saving Baseline Image")
             np.save(os.path.join("./", "ref_image_array.npy"), adjusted_clipped_images)
             with open("circles_ref.pkl", "wb") as file:
                 pkl.dump(circles_ref, file)
@@ -511,8 +512,6 @@ def main(
 
             new_file = client.folder(folder_id).upload(file_path)
             print(f'File "{new_file.name}" uploaded with ID {new_file.id}')
-
-        return adjusted_clipped_images
 
     if id_type == 'folder':
 
