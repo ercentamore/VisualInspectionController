@@ -688,7 +688,7 @@ if __name__ == "__main__":
         print("No input found. Please provide a Box file or folder ID.")
 
     if args.devtoken:
-        dev_token = args.dev_token
+        dev_token = args.devtoken
     else:
         print("No input found. Please provide your Box Developer Token.")
 
