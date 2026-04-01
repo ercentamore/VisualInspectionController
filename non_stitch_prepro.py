@@ -378,7 +378,7 @@ def main(
     oauth = OAuth2(
     client_id,
     client_secret,
-    dev_token,
+    access_token = dev_token,
     )
     client = Client(oauth)
 
