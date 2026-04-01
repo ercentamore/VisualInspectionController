@@ -501,6 +501,7 @@ def main(
             np.save(os.path.join("./", "ref_image_array.npy"), adjusted_clipped_images)
             with open("circles_ref.pkl", "wb") as file:
                 pkl.dump(circles_ref, file)
+            is_baseline = False
         elif out_folder is not None:
             print("output folder exists")
             logger.debug("Saving...")
@@ -566,7 +567,6 @@ def main(
                 print(f"Circles ref length: {len(circles_ref)}")
             else:
                 circles_ref = []
-                is_baseline = False
 
             logger.debug(
                 f"Clipping images, from {total_image_shape} to {vert_clip}, {horz_clip} (fractions {vert_clip_fraction}, {horz_clip_fraction})"
@@ -650,6 +650,7 @@ def main(
                 np.save(os.path.join("./", "ref_image_array.npy"), adjusted_clipped_images)
                 with open("circles_ref.pkl", "wb") as file:
                     pkl.dump(circles_ref, file)
+                is_baseline = False
             elif out_folder is not None:
                 print("output folder exists")
                 logger.debug("Saving...")
