@@ -21,11 +21,11 @@ from non_stitch_prepro import main
 ## SETTINGS
 ##
 
-kernel_size = 340
+kernel_size = 84
 
 stitched_scale = 1
-vertical_clip_fraction = 0
-horizontal_clip_fraction = 0
+vertical_clip_fraction = 0.025
+horizontal_clip_fraction = 0.025
 
 ##
 ## LOAD RESOURCES

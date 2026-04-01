@@ -317,204 +317,359 @@ def bidirectional_match(a: np.ndarray, b: np.ndarray, radius: float = 250):
     return np.empty((0, 2), a.dtype), np.empty((0, 2), b.dtype)
 
 
-def compute_thresholds(
-    image: np.ndarray, cfg: dict = None, num_cols: int = 9
-) -> tuple[np.ndarray, np.ndarray]:
-    default_cfg = {
-        "low_mean": 115.0,
-        "high_mean": 128.0,
-        "pos_min_low": 80.0,
-        "pos_max_low": 115.0,
-        "neg_min_low": 115.0,
-        "neg_max_low": 150.0,
-        "pos_min_high": 90.0,
-        "pos_max_high": 125.0,
-        "neg_min_high": 125.0,
-        "neg_max_high": 160.0,
-        "clamp": True,
-    }
-    if cfg is None:
-        cfg = {}
-    cfg = {**default_cfg, **cfg}
+# def compute_thresholds(
+#     image: np.ndarray, cfg: dict = None, num_cols: int = 9
+# ) -> tuple[np.ndarray, np.ndarray]:
+#     default_cfg = {
+#         "low_mean": 115.0,
+#         "high_mean": 128.0,
+#         "pos_min_low": 80.0,
+#         "pos_max_low": 115.0,
+#         "neg_min_low": 115.0,
+#         "neg_max_low": 150.0,
+#         "pos_min_high": 90.0,
+#         "pos_max_high": 125.0,
+#         "neg_min_high": 125.0,
+#         "neg_max_high": 160.0,
+#         "clamp": True,
+#     }
+#     if cfg is None:
+#         cfg = {}
+#     cfg = {**default_cfg, **cfg}
 
-    lo = cfg["low_mean"]
-    hi = cfg["high_mean"]
+#     lo = cfg["low_mean"]
+#     hi = cfg["high_mean"]
 
-    array_mean = np.mean(image)
-    m = max(lo, min(array_mean, hi)) if cfg.get("clamp", True) else array_mean
-    denom = (hi - lo) if hi != lo else 1.0
-    t = (m - lo) / denom  # 0 at low_mean, 1 at high_mean
+#     array_mean = np.mean(image)
+#     m = max(lo, min(array_mean, hi)) if cfg.get("clamp", True) else array_mean
+#     denom = (hi - lo) if hi != lo else 1.0
+#     t = (m - lo) / denom  # 0 at low_mean, 1 at high_mean
 
-    def lerp(a, b, t):  # linear interpolation
-        return a + (b - a) * t
+#     def lerp(a, b, t):  # linear interpolation
+#         return a + (b - a) * t
 
-    pos_min = lerp(cfg["pos_min_low"], cfg["pos_min_high"], t)
-    pos_max = lerp(cfg["pos_max_low"], cfg["pos_max_high"], t)
-    neg_min = lerp(cfg["neg_min_low"], cfg["neg_min_high"], t)
-    neg_max = lerp(cfg["neg_max_low"], cfg["neg_max_high"], t)
+#     pos_min = lerp(cfg["pos_min_low"], cfg["pos_min_high"], t)
+#     pos_max = lerp(cfg["pos_max_low"], cfg["pos_max_high"], t)
+#     neg_min = lerp(cfg["neg_min_low"], cfg["neg_min_high"], t)
+#     neg_max = lerp(cfg["neg_max_low"], cfg["neg_max_high"], t)
 
-    pos_thresholds = np.linspace(pos_min, pos_max, num=num_cols)
-    neg_thresholds = np.linspace(neg_min, neg_max, num=num_cols)
+#     pos_thresholds = np.linspace(pos_min, pos_max, num=num_cols)
+#     neg_thresholds = np.linspace(neg_min, neg_max, num=num_cols)
 
-    return pos_thresholds, neg_thresholds
+#     return pos_thresholds, neg_thresholds
 
 
 def main(
-    images,
+    dev_token,
+    client_id, 
+    client_secret,
+    imgs_id,
+    id_type,
     vert_clip_fraction: float,
     horz_clip_fraction: float,
     kernel_size: int,
     output_dir: str,
     is_baseline: bool = False,
 ):
-    circle_kernel = get_circle_pattern(kernel_size)
-    total_image_shape = images[0][0].shape
-    vert_clip = math.floor(total_image_shape[0] * vert_clip_fraction)
-    horz_clip = math.floor(total_image_shape[1] * horz_clip_fraction)
-    rows = len(images)
-    columns = len(images[0])
-    print(f"num cols: {columns}")
+    
+    from boxsdk import Client, OAuth2
 
-    # positive_thresholds, negative_thresholds = compute_thresholds(
-    #     images, num_cols=columns
-    # )
-
-    skip_set = {
-        (0, 0),
-        (0, 1),
-        (0, 7),
-        (0, 8),
-        (1, 0),
-        (1, 8),
-        (2, 0),
-        (2, 8),
-        (3, 0),
-        (3, 8),
-        (4, 0),
-        (4, 8),
-        (8, 0),
-        (8, 8),
-        (9, 0),
-        (9, 8),
-        (10, 0),
-        (10, 1),
-        (10, 7),
-        (10, 8),
-        (11, 0),
-        (11, 1),
-        (11, 8),
-        (12, 0),
-        (12, 1),
-        (12, 7),
-        (12, 8),
-    }
-
-    if not is_baseline:
-        with open("./circles_ref.pkl", "rb") as f:
-            circles_ref = pkl.load(f)
-        print(f"Circles ref length: {len(circles_ref)}")
-    else:
-        circles_ref = []
-
-    logger.debug(
-        f"Clipping images, from {total_image_shape} to {vert_clip}, {horz_clip} (fractions {vert_clip_fraction}, {horz_clip_fraction})"
+    oauth = OAuth2(
+    client_id,
+    client_secret,
+    dev_token,
     )
-    pbar = tqdm.tqdm(desc="Clipping Images", total=rows * columns)
+    client = Client(oauth)
 
-    # try:
-    adjusted_clipped_images = np.zeros(
-        (
-            rows,
-            columns,
-            total_image_shape[0] - 2 * vert_clip,
-            total_image_shape[1] - 2 * horz_clip,
-            3,
-        ),
-        dtype=np.uint8,
-    )
-    for row_num, row in enumerate(images):
-        for col_num, _ in enumerate(row):
-            # Raw tile as BGR (OpenCV convention)
-            tile_bgr_u8 = images[row_num, col_num].astype(np.uint8)
-    
-            # PIL image must be RGB
-            tile_rgb_u8 = cv2.cvtColor(tile_bgr_u8, cv2.COLOR_BGR2RGB)
-            image_pil = Image.fromarray(tile_rgb_u8)
-    
-            if (row_num, col_num) in skip_set:
-                clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
-                print(f"image [{row_num}, {col_num}] skipped")
-                if is_baseline:
-                    circles_ref.append(np.array([[0, 0]]))
-            else:
-                # Detect using BGR float32
-                tile_bgr_f32 = tile_bgr_u8.astype(np.float32)
-    
-                circle_coords = get_circles(
-                    circle_kernel,
-                    tile_bgr_f32,
-                    pos_thresh=32,
-                    neg_thresh=115,
-                    pixels_to_shrink=10,
-                    mode="soft",   # or "strict" if you pass per-channel thresholds
-                )
-    
-                circle_coords = keep_central_circles(
-                    circle_coords, tile_bgr_u8, x_clip=150, y_clip=150
-                )
-    
-                circle_coords = circle_coords[
-                    np.lexsort((circle_coords[:, 1], circle_coords[:, 0]))
-                ]
-    
-                if is_baseline:
-                    clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
-                    circles_ref.append(circle_coords)
-                else:
-                    c_coords, c_ref = bidirectional_match(
-                        np.array(circle_coords),
-                        np.array(circles_ref[row_num * columns + col_num]),
-                    )
-    
-                    aligned_pil_rgb = align_image_general(
-                        image_pil,
-                        src_pts=c_coords,
-                        dst_pts=c_ref,
-                        debug_id=f"r{row_num:02d}_c{col_num:02d}",
-                    )
-    
-                    aligned_rgb = np.asarray(aligned_pil_rgb)
-                    aligned_bgr = cv2.cvtColor(aligned_rgb, cv2.COLOR_RGB2BGR)
-    
-                    clipped_img = crop_image(aligned_bgr, horz_clip, vert_clip)
-    
-            adjusted_clipped_images[rows - row_num - 1][col_num] = clipped_img
-            pbar.update()
-    # except:
-    #     print(f"Failed for {row_num}, {col_num}")
-    pbar.close()
+    if id_type == 'file':
 
-    if is_baseline:
-        np.save(os.path.join("./", "ref_image_array.npy"), adjusted_clipped_images)
-        with open("circles_ref.pkl", "wb") as file:
-            pkl.dump(circles_ref, file)
-    elif output_dir is not None:
-        print("output dir exists")
-        logger.debug("Saving...")
-        np.save(
-            os.path.join(output_dir, f"non-stitch-prepro-out.npy"),
-            adjusted_clipped_images,
+        file_id = imgs_id
+        
+        numpy_file = client.file(file_id).get()
+        file_stream = io.BytesIO()
+        numpy_file.download_to(file_stream)
+        file_stream.seek(0)
+        images = np.load(file_stream)
+
+        circle_kernel = get_circle_pattern(kernel_size)
+        total_image_shape = images[0][0].shape
+        vert_clip = math.floor(total_image_shape[0] * vert_clip_fraction)
+        horz_clip = math.floor(total_image_shape[1] * horz_clip_fraction)
+        rows = len(images)
+        columns = len(images[0])
+        print(f"num cols: {columns}")
+
+        skip_set = {
+            (0, 0),
+            (0, 4),
+            (1, 0),
+            (1, 4), 
+            (6, 0), 
+            (6, 4),
+            (7, 0),
+            (7, 4)
+        }
+
+        if not is_baseline:
+            with open("./circles_ref.pkl", "rb") as f:
+                circles_ref = pkl.load(f)
+            print(f"Circles ref length: {len(circles_ref)}")
+        else:
+            circles_ref = []
+            is_baseline = False
+
+        logger.debug(
+            f"Clipping images, from {total_image_shape} to {vert_clip}, {horz_clip} (fractions {vert_clip_fraction}, {horz_clip_fraction})"
         )
-        print("image saved to output dir")
+        pbar = tqdm.tqdm(desc="Clipping Images", total=rows * columns)
 
-    return adjusted_clipped_images
+        # try:
+        adjusted_clipped_images = np.zeros(
+            (
+                rows,
+                columns,
+                total_image_shape[0] - 2 * vert_clip,
+                total_image_shape[1] - 2 * horz_clip,
+                3,
+            ),
+            dtype=np.uint8,
+        )
+        for row_num, row in enumerate(images):
+            for col_num, _ in enumerate(row):
+                # Raw tile as BGR (OpenCV convention)
+                tile_bgr_u8 = images[row_num, col_num].astype(np.uint8)
+        
+                # PIL image must be RGB
+                tile_rgb_u8 = cv2.cvtColor(tile_bgr_u8, cv2.COLOR_BGR2RGB)
+                image_pil = Image.fromarray(tile_rgb_u8)
+        
+                if (row_num, col_num) in skip_set:
+                    clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
+                    print(f"image [{row_num}, {col_num}] skipped")
+                    if is_baseline:
+                        circles_ref.append(np.array([[0, 0]]))
+                else:
+                    # Detect using BGR float32
+                    tile_bgr_f32 = tile_bgr_u8.astype(np.float32)
+        
+                    circle_coords = get_circles(
+                        circle_kernel,
+                        tile_bgr_f32,
+                        pos_thresh=32,
+                        neg_thresh=115,
+                        pixels_to_shrink=10,
+                        mode="soft",   # or "strict" if you pass per-channel thresholds
+                    )
+        
+                    circle_coords = keep_central_circles(
+                        circle_coords, tile_bgr_u8, x_clip=150, y_clip=150
+                    )
+        
+                    circle_coords = circle_coords[
+                        np.lexsort((circle_coords[:, 1], circle_coords[:, 0]))
+                    ]
+        
+                    if is_baseline:
+                        clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
+                        circles_ref.append(circle_coords)
+                    else:
+                        c_coords, c_ref = bidirectional_match(
+                            np.array(circle_coords),
+                            np.array(circles_ref[row_num * columns + col_num]),
+                        )
+        
+                        aligned_pil_rgb = align_image_general(
+                            image_pil,
+                            src_pts=c_coords,
+                            dst_pts=c_ref,
+                            debug_id=f"r{row_num:02d}_c{col_num:02d}",
+                        )
+        
+                        aligned_rgb = np.asarray(aligned_pil_rgb)
+                        aligned_bgr = cv2.cvtColor(aligned_rgb, cv2.COLOR_RGB2BGR)
+        
+                        clipped_img = crop_image(aligned_bgr, horz_clip, vert_clip)
+        
+                adjusted_clipped_images[rows - row_num - 1][col_num] = clipped_img
+                pbar.update()
+        # except:
+        #     print(f"Failed for {row_num}, {col_num}")
+        pbar.close()
+
+        if is_baseline:
+            np.save(os.path.join("./", "ref_image_array.npy"), adjusted_clipped_images)
+            with open("circles_ref.pkl", "wb") as file:
+                pkl.dump(circles_ref, file)
+        elif output_dir is not None:
+            print("output dir exists")
+            logger.debug("Saving...")
+            np.save(
+                os.path.join(output_dir, f"non-stitch-prepro-out.npy"),
+                adjusted_clipped_images,
+            )
+            print("image saved to output dir")
+
+        return adjusted_clipped_images
+
+    if id_type == 'folder':
+
+        folder_id = imgs_id
+
+        data_folder = client.folder(folder_id).get_items(limit=1000)
+        file_ids = {
+            'name':[],
+            'id':[]
+        }
+        for folder in data_folder:
+        #save the name of the folder
+            file_ids['name'].append(folder.name)
+            #get file in the folder
+            numpy_file = client.folder(folder.id).get_items()
+            #save the id of the file
+            for imgfile in numpy_file:
+                file_ids['id'].append(imgfile.id)
+
+        for idx in file_id['id']:
+            file_name = file_ids['name'][idx]
+            file_id = file_ids['id'][idx]
+
+            numpy_file = client.file(file_id).get()
+            file_stream = io.BytesIO()
+            numpy_file.download_to(file_stream)
+            file_stream.seek(0)
+            images = np.load(file_stream)
+
+            circle_kernel = get_circle_pattern(kernel_size)
+            total_image_shape = images[0][0].shape
+            vert_clip = math.floor(total_image_shape[0] * vert_clip_fraction)
+            horz_clip = math.floor(total_image_shape[1] * horz_clip_fraction)
+            rows = len(images)
+            columns = len(images[0])
+            print(f"num cols: {columns}")
+
+            skip_set = {
+                (0, 0),
+                (0, 4),
+                (1, 0),
+                (1, 4), 
+                (6, 0), 
+                (6, 4),
+                (7, 0),
+                (7, 4)
+            }
+
+            if not is_baseline:
+                with open("./circles_ref.pkl", "rb") as f:
+                    circles_ref = pkl.load(f)
+                print(f"Circles ref length: {len(circles_ref)}")
+            else:
+                circles_ref = []
+                is_baseline = False
+
+            logger.debug(
+                f"Clipping images, from {total_image_shape} to {vert_clip}, {horz_clip} (fractions {vert_clip_fraction}, {horz_clip_fraction})"
+            )
+            pbar = tqdm.tqdm(desc="Clipping Images", total=rows * columns)
+
+            # try:
+            adjusted_clipped_images = np.zeros(
+                (
+                    rows,
+                    columns,
+                    total_image_shape[0] - 2 * vert_clip,
+                    total_image_shape[1] - 2 * horz_clip,
+                    3,
+                ),
+                dtype=np.uint8,
+            )
+            for row_num, row in enumerate(images):
+                for col_num, _ in enumerate(row):
+                    # Raw tile as BGR (OpenCV convention)
+                    tile_bgr_u8 = images[row_num, col_num].astype(np.uint8)
+            
+                    # PIL image must be RGB
+                    tile_rgb_u8 = cv2.cvtColor(tile_bgr_u8, cv2.COLOR_BGR2RGB)
+                    image_pil = Image.fromarray(tile_rgb_u8)
+            
+                    if (row_num, col_num) in skip_set:
+                        clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
+                        print(f"image [{row_num}, {col_num}] skipped")
+                        if is_baseline:
+                            circles_ref.append(np.array([[0, 0]]))
+                    else:
+                        # Detect using BGR float32
+                        tile_bgr_f32 = tile_bgr_u8.astype(np.float32)
+            
+                        circle_coords = get_circles(
+                            circle_kernel,
+                            tile_bgr_f32,
+                            pos_thresh=32,
+                            neg_thresh=115,
+                            pixels_to_shrink=10,
+                            mode="soft",   # or "strict" if you pass per-channel thresholds
+                        )
+            
+                        circle_coords = keep_central_circles(
+                            circle_coords, tile_bgr_u8, x_clip=150, y_clip=150
+                        )
+            
+                        circle_coords = circle_coords[
+                            np.lexsort((circle_coords[:, 1], circle_coords[:, 0]))
+                        ]
+            
+                        if is_baseline:
+                            clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
+                            circles_ref.append(circle_coords)
+                        else:
+                            c_coords, c_ref = bidirectional_match(
+                                np.array(circle_coords),
+                                np.array(circles_ref[row_num * columns + col_num]),
+                            )
+            
+                            aligned_pil_rgb = align_image_general(
+                                image_pil,
+                                src_pts=c_coords,
+                                dst_pts=c_ref,
+                                debug_id=f"r{row_num:02d}_c{col_num:02d}",
+                            )
+            
+                            aligned_rgb = np.asarray(aligned_pil_rgb)
+                            aligned_bgr = cv2.cvtColor(aligned_rgb, cv2.COLOR_RGB2BGR)
+            
+                            clipped_img = crop_image(aligned_bgr, horz_clip, vert_clip)
+            
+                    adjusted_clipped_images[rows - row_num - 1][col_num] = clipped_img
+                    pbar.update()
+            # except:
+            #     print(f"Failed for {row_num}, {col_num}")
+            pbar.close()
+
+            if is_baseline:
+                np.save(os.path.join("./", "ref_image_array.npy"), adjusted_clipped_images)
+                with open("circles_ref.pkl", "wb") as file:
+                    pkl.dump(circles_ref, file)
+            elif output_dir is not None:
+                print("output dir exists")
+                logger.debug("Saving...")
+                np.save(
+                    os.path.join(output_dir, f"non-stitch-prepro-out.npy"),
+                    adjusted_clipped_images,
+                )
+                print("image saved to output dir")
+
+            return adjusted_clipped_images
 
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-b", "--baseline", help = "creates a baseline image")
-    parser.add_argument("-i", "--input", help = "input image variable")
+    parser.add_argument("-i", "--input", help = "input file or folder ID (found in Box URL)")
+    parser.add_argument("-d", "--devtoken", help = "input Box Developer Token")
+    parser.add_argument("-c", "--clientid", help = "input Boc Client ID")
+    parser.add_argument("-s", "--clientsecret", help = "input Box Client Secret")
+    parser.add_argument("-t", "--idtype", help = "Provide the Box ID type (file or folder)")
+
     args = parser.parse_args()
 
     if args.baseline:
@@ -523,19 +678,41 @@ if __name__ == "__main__":
         is_baseline = False
 
     if args.input:
-        img_path = args.input
+        imgs_id = args.input
     else:
-        print("No input found. Please provide a path to a numpy file.")
+        print("No input found. Please provide a Box file or folder ID.")
 
+    if args.devtoken:
+        dev_token = args.dev_token
+    else:
+        print("No input found. Please provide your Box Developer Token.")
+
+    if args.clientid:
+        client_id = args.clientid
+    else:
+        print("No input found. Please provide your Box Client ID.")
+
+    if args.clientsecret:
+        client_secret = args.clientsecret
+    else:
+        print("No input found. Please provide your Box Client Secret.")
+
+    if args.idtype:
+        id_type = args.idtype
+    else:
+        print("Please provide a Box ID type: file or folder")
 
     output_dir = "./Pictures"
     vert_clip_fraction = 0.025
     horz_clip_fraction = 0.025
-    kernel_size = 340
-    img = np.load(f"{img_path}")
+    kernel_size = 84
 
     main(
-        images=img,
+        dev_token,
+        client_id,
+        client_secret,
+        imgs_id,
+        id_type,
         vert_clip_fraction=vert_clip_fraction,
         horz_clip_fraction=horz_clip_fraction,
         kernel_size=kernel_size,
