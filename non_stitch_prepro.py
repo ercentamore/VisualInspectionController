@@ -722,6 +722,7 @@ if __name__ == "__main__":
         client_secret,
         imgs_id,
         id_type,
+        out_folder,
         vert_clip_fraction=vert_clip_fraction,
         horz_clip_fraction=horz_clip_fraction,
         kernel_size=kernel_size,
