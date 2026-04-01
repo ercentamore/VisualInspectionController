@@ -446,6 +446,7 @@ def main(
                 # PIL image must be RGB
                 tile_rgb_u8 = cv2.cvtColor(tile_bgr_u8, cv2.COLOR_BGR2RGB)
                 image_pil = Image.fromarray(tile_rgb_u8)
+                print("PIL img created")
         
                 if (row_num, col_num) in skip_set:
                     clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
@@ -600,6 +601,7 @@ def main(
                     # PIL image must be RGB
                     tile_rgb_u8 = cv2.cvtColor(tile_bgr_u8, cv2.COLOR_BGR2RGB)
                     image_pil = Image.fromarray(tile_rgb_u8)
+                    print("PIL img created")
             
                     if (row_num, col_num) in skip_set:
                         clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
