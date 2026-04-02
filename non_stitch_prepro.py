@@ -478,14 +478,14 @@ def main(
                     #     np.lexsort((circle_coords[:, 1], circle_coords[:, 0]))
                     # ]
         
-                    # if is_baseline:
-                    #     clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
-                    #     circles_ref.append(circle_coords)
-                    # else:
-                    #     c_coords, c_ref = bidirectional_match(
-                    #         np.array(circle_coords),
-                    #         np.array(circles_ref[row_num * columns + col_num]),
-                    #     )
+                    if is_baseline:
+                        clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
+                        circles_ref.append(circle_coords)
+                    else:
+                        # c_coords, c_ref = bidirectional_match(
+                        #     np.array(circle_coords),
+                        #     np.array(circles_ref[row_num * columns + col_num]),
+                        # )
 
                         #debug visualization
                         print("Visualization Here")
@@ -495,8 +495,8 @@ def main(
                         ax[0].axis('off')
 
                         ax[1].imshow(image_pil,  cmap='gray', vmin=0, vmax=255)
-                        if (len(c_ref) > 0):
-                            ax[1].scatter(*zip(*c_ref), c='r', s=50, marker='x')
+                        if (len(circles_ref) > 0):
+                            ax[1].scatter(*zip(*circles_ref), c='r', s=50, marker='x')
                         else:
                             print("No corners found")
                         # ax[1].set_title('Reference Image with Markers')
@@ -652,14 +652,14 @@ def main(
                         #     np.lexsort((circle_coords[:, 1], circle_coords[:, 0]))
                         # ]
             
-                        # if is_baseline:
-                        #     clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
-                        #     circles_ref.append(circle_coords)
-                        # else:
-                        #     c_coords, c_ref = bidirectional_match(
-                        #         np.array(circle_coords),
-                        #         np.array(circles_ref[row_num * columns + col_num]),
-                        #     )
+                        if is_baseline:
+                            clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
+                            circles_ref.append(circle_coords)
+                        else:
+                            # c_coords, c_ref = bidirectional_match(
+                            #     np.array(circle_coords),
+                            #     np.array(circles_ref[row_num * columns + col_num]),
+                            # )
 
                             #debug visualization
                             print("Visualization Here")
@@ -669,8 +669,8 @@ def main(
                             ax[0].axis('off')
 
                             ax[1].imshow(image_pil,  cmap='gray', vmin=0, vmax=255)
-                            if (len(c_ref) > 0):
-                                ax[1].scatter(*zip(*c_ref), c='r', s=50, marker='x')
+                            if (len(circles_ref) > 0):
+                                ax[1].scatter(*zip(*circles_ref), c='r', s=50, marker='x')
                             else:
                                 print("No corners found")
                             # ax[1].set_title('Reference Image with Markers')
