@@ -494,7 +494,7 @@ def main(
                         # ax[0].set_title('Reference Image')
                         ax[0].axis('off')
 
-                        print(f"circles_ref shape: {circles_ref[0].shape}")
+                        print(f"circles_ref 0: {circles_ref[0]}")
 
                         ax[1].imshow(image_pil,  cmap='gray', vmin=0, vmax=255)
                         if (len(circles_ref) > 0):
@@ -670,7 +670,7 @@ def main(
                             # ax[0].set_title('Reference Image')
                             ax[0].axis('off')
 
-                            print(f"circles_ref shape: {circles_ref[0].shape}")
+                            print(f"circles_ref 0: {circles_ref[0]}")
 
                             ax[1].imshow(image_pil,  cmap='gray', vmin=0, vmax=255)
                             if (len(circles_ref) > 0):
