@@ -494,8 +494,8 @@ def main(
                         ax[0].axis('off')
 
                         ax[1].imshow(image_pil,  cmap='gray', vmin=0, vmax=255)
-                        if (len(circles_ref) > 0):
-                            ax[1].scatter(*zip(*circles_ref), c='r', s=50, marker='x')
+                        if (len(c_ref) > 0):
+                            ax[1].scatter(*zip(*c_ref), c='r', s=50, marker='x')
                         else:
                             print("No corners found")
                         ax[1].set_title('Reference Image with Markers')
@@ -667,8 +667,8 @@ def main(
                             ax[0].axis('off')
 
                             ax[1].imshow(image_pil,  cmap='gray', vmin=0, vmax=255)
-                            if (len(circles_ref) > 0):
-                                ax[1].scatter(*zip(*circles_ref), c='r', s=50, marker='x')
+                            if (len(c_ref) > 0):
+                                ax[1].scatter(*zip(*c_ref), c='r', s=50, marker='x')
                             else:
                                 print("No corners found")
                             ax[1].set_title('Reference Image with Markers')
