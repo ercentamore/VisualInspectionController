@@ -196,7 +196,7 @@ def crop_image(img, x_clip, y_clip):
 
 
 def blob_centers(
-    det_mask: np.ndarray, approx_marker_area: int = 340, split_large: bool = True
+    det_mask: np.ndarray, approx_marker_area: int = 84, split_large: bool = True
 ) -> np.ndarray:
     det_uint = det_mask.astype(np.uint8)
 
@@ -277,7 +277,7 @@ def get_circles(
     else:
         raise ValueError(f"Unknown mode '{mode}'")
 
-    circle_coords = blob_centers(det, approx_marker_area=340, split_large=False)
+    circle_coords = blob_centers(det, approx_marker_area=84, split_large=False)
     return circle_coords
 
 
