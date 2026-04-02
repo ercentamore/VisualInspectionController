@@ -409,7 +409,7 @@ def main(
             (1, 0),
             (1, 4),
             (2, 0),
-            (5,0),
+            (5, 0),
             (5, 4), 
             (6, 0), 
             (6, 4),
@@ -485,7 +485,24 @@ def main(
                             np.array(circle_coords),
                             np.array(circles_ref[row_num * columns + col_num]),
                         )
-        
+                        
+                        #debug visualization
+                        fig, ax = plt.subplots(1,2,figsize=(10,5))
+                        ax[0].imshow(image_pil,  cmap='gray', vmin=0, vmax=255)
+                        ax[0].set_title('Reference Image')
+                        ax[0].axis('off')
+
+                        ax[1].imshow(image_pil,  cmap='gray', vmin=0, vmax=255)
+                        if len(circles_ref > 0):
+                            ax[1].scatter(*zip(*circles_ref), c='r', s=50, marker='x')
+                        else:
+                            print("No corners found")
+                        ax[1].set_title('Reference Image with Markers')
+                        ax[1].axis('off')
+
+                        plt.tight_layout()
+                        plt.show()
+
                         aligned_pil_rgb = align_image_general(
                             image_pil,
                             src_pts=c_coords,
