@@ -494,7 +494,7 @@ def main(
                         ax[0].axis('off')
 
                         ax[1].imshow(image_pil,  cmap='gray', vmin=0, vmax=255)
-                        if len(circles_ref > 0):
+                        if (len(circles_ref) > 0):
                             ax[1].scatter(*zip(*circles_ref), c='r', s=50, marker='x')
                         else:
                             print("No corners found")
@@ -658,7 +658,7 @@ def main(
                                 np.array(circle_coords),
                                 np.array(circles_ref[row_num * columns + col_num]),
                             )
-                            
+
                             #debug visualization
                             print("Visualization Here")
                             fig, ax = plt.subplots(1,2,figsize=(10,5))
@@ -667,7 +667,7 @@ def main(
                             ax[0].axis('off')
 
                             ax[1].imshow(image_pil,  cmap='gray', vmin=0, vmax=255)
-                            if len(circles_ref > 0):
+                            if (len(circles_ref) > 0):
                                 ax[1].scatter(*zip(*circles_ref), c='r', s=50, marker='x')
                             else:
                                 print("No corners found")
