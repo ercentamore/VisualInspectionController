@@ -470,22 +470,22 @@ def main(
                         mode="soft",   # or "strict" if you pass per-channel thresholds
                     )
         
-                    circle_coords = keep_central_circles(
-                        circle_coords, tile_bgr_u8, x_clip=150, y_clip=150
-                    )
+                    # circle_coords = keep_central_circles(
+                    #     circle_coords, tile_bgr_u8, x_clip=150, y_clip=150
+                    # )
         
-                    circle_coords = circle_coords[
-                        np.lexsort((circle_coords[:, 1], circle_coords[:, 0]))
-                    ]
+                    # circle_coords = circle_coords[
+                    #     np.lexsort((circle_coords[:, 1], circle_coords[:, 0]))
+                    # ]
         
-                    if is_baseline:
-                        clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
-                        circles_ref.append(circle_coords)
-                    else:
-                        c_coords, c_ref = bidirectional_match(
-                            np.array(circle_coords),
-                            np.array(circles_ref[row_num * columns + col_num]),
-                        )
+                    # if is_baseline:
+                    #     clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
+                    #     circles_ref.append(circle_coords)
+                    # else:
+                    #     c_coords, c_ref = bidirectional_match(
+                    #         np.array(circle_coords),
+                    #         np.array(circles_ref[row_num * columns + col_num]),
+                    #     )
 
                         #debug visualization
                         print("Visualization Here")
@@ -644,22 +644,22 @@ def main(
                             mode="soft",   # or "strict" if you pass per-channel thresholds
                         )
             
-                        circle_coords = keep_central_circles(
-                            circle_coords, tile_bgr_u8, x_clip=150, y_clip=150
-                        )
+                        # circle_coords = keep_central_circles(
+                        #     circle_coords, tile_bgr_u8, x_clip=150, y_clip=150
+                        # )
             
-                        circle_coords = circle_coords[
-                            np.lexsort((circle_coords[:, 1], circle_coords[:, 0]))
-                        ]
+                        # circle_coords = circle_coords[
+                        #     np.lexsort((circle_coords[:, 1], circle_coords[:, 0]))
+                        # ]
             
-                        if is_baseline:
-                            clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
-                            circles_ref.append(circle_coords)
-                        else:
-                            c_coords, c_ref = bidirectional_match(
-                                np.array(circle_coords),
-                                np.array(circles_ref[row_num * columns + col_num]),
-                            )
+                        # if is_baseline:
+                        #     clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
+                        #     circles_ref.append(circle_coords)
+                        # else:
+                        #     c_coords, c_ref = bidirectional_match(
+                        #         np.array(circle_coords),
+                        #         np.array(circles_ref[row_num * columns + col_num]),
+                        #     )
 
                             #debug visualization
                             print("Visualization Here")
