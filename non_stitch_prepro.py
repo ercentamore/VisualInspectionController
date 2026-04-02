@@ -445,7 +445,7 @@ def main(
             for col_num, _ in enumerate(row):
                 # Raw tile as BGR (OpenCV convention)
                 tile_bgr_u8 = images[row_num, col_num].astype(np.uint8)
-                tile_bgr_u8 = tile_bgr_u8[:, :, :, :, ::-1]
+                tile_bgr_u8 = tile_bgr_u8[:, :, ::-1]
                 
                 # PIL image must be RGB
                 tile_rgb_u8 = cv2.cvtColor(tile_bgr_u8, cv2.COLOR_BGR2RGB)
@@ -619,7 +619,7 @@ def main(
                 for col_num, _ in enumerate(row):
                     # Raw tile as BGR (OpenCV convention)
                     tile_bgr_u8 = images[row_num, col_num].astype(np.uint8)
-                    tile_bgr_u8 = tile_bgr_u8[:, :, :, :, ::-1]
+                    tile_bgr_u8 = tile_bgr_u8[:, :, ::-1]
             
                     # PIL image must be RGB
                     tile_rgb_u8 = cv2.cvtColor(tile_bgr_u8, cv2.COLOR_BGR2RGB)
