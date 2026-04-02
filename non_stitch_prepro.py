@@ -464,14 +464,14 @@ def main(
                     circle_coords = get_circles(
                         circle_kernel,
                         tile_bgr_f32,
-                        pos_thresh=40,
-                        neg_thresh=100,
+                        pos_thresh=32,
+                        neg_thresh=115,
                         pixels_to_shrink=10,
                         mode="soft",   # or "strict" if you pass per-channel thresholds
                     )
         
                     circle_coords = keep_central_circles(
-                        circle_coords, tile_bgr_u8, x_clip=0, y_clip=0
+                        circle_coords, tile_bgr_u8, x_clip=150, y_clip=150
                     )
         
                     circle_coords = circle_coords[
@@ -638,14 +638,14 @@ def main(
                         circle_coords = get_circles(
                             circle_kernel,
                             tile_bgr_f32,
-                            pos_thresh=40,
-                            neg_thresh=100,
+                            pos_thresh=32,
+                            neg_thresh=115,
                             pixels_to_shrink=10,
                             mode="soft",   # or "strict" if you pass per-channel thresholds
                         )
             
                         circle_coords = keep_central_circles(
-                            circle_coords, tile_bgr_u8, x_clip=0, y_clip=0
+                            circle_coords, tile_bgr_u8, x_clip=150, y_clip=150
                         )
             
                         circle_coords = circle_coords[
