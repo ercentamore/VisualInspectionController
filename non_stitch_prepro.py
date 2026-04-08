@@ -44,8 +44,8 @@ def align_image_general(
     src = np.array(src_pts, dtype=np.float32)
     dst = np.array(dst_pts, dtype=np.float32)
 
-    print(src.shape)
-    print(dst.shape)
+    print(f"SRC shape: {src.shape}")
+    print(f"DST shape: {dst.shape}")
 
     M, _ = cv2.estimateAffinePartial2D(
         src,
@@ -486,28 +486,6 @@ def main(
                             np.array(circle_coords),
                             np.array(circles_ref[row_num * columns + col_num]),
                         )
-                        print(f"Circle Coords: {circle_coords}, {circle_coords.shape}")
-                        print(f"Ref Coords: {circles_ref}")
-
-                        print(f"List: {list(zip(*circles_ref))}")
-
-                        #debug visualization
-                        print("Visualization Here")
-                        fig, ax = plt.subplots(1,2,figsize=(10,5))
-                        ax[0].imshow(image_pil,  cmap='gray', vmin=0, vmax=255)
-                        # ax[0].set_title('Reference Image')
-                        ax[0].axis('off')
-
-                        ax[1].imshow(image_pil,  cmap='gray', vmin=0, vmax=255)
-                        if (len(circles_ref) > 0):
-                            ax[1].scatter(*zip(*circles_ref), c='r', s=50, marker='x')
-                        else:
-                            print("No corners found")
-                        # ax[1].set_title('Reference Image with Markers')
-                        ax[1].axis('off')
-
-                        plt.tight_layout()
-                        plt.show()
 
                         aligned_pil_rgb = align_image_general(
                             image_pil,
@@ -664,28 +642,6 @@ def main(
                                 np.array(circle_coords),
                                 np.array(circles_ref[row_num * columns + col_num]),
                             )
-                            print(f"Circle Coords: {circle_coords}, {circle_coords.shape}")
-                            print(f"Ref Coords: {circles_ref}")
-
-                            print(f"List: {list(zip(*circles_ref))}")
-                            
-                            #debug visualization
-                            print("Visualization Here")
-                            fig, ax = plt.subplots(1,2,figsize=(10,5))
-                            ax[0].imshow(image_pil,  cmap='gray', vmin=0, vmax=255)
-                            # ax[0].set_title('Reference Image')
-                            ax[0].axis('off')
-
-                            ax[1].imshow(image_pil,  cmap='gray', vmin=0, vmax=255)
-                            if (len(circles_ref) > 0):
-                                ax[1].scatter(*zip(*circles_ref), c='r', s=50, marker='x')
-                            else:
-                                print("No corners found")
-                            # ax[1].set_title('Reference Image with Markers')
-                            ax[1].axis('off')
-
-                            plt.tight_layout()
-                            plt.show()
 
                             aligned_pil_rgb = align_image_general(
                                 image_pil,
