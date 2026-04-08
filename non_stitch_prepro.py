@@ -486,7 +486,9 @@ def main(
                             np.array(circle_coords),
                             np.array(circles_ref[row_num * columns + col_num]),
                         )
-
+                        
+                        print(f"Row Num: {row_num}, Col Num: {col_num}")
+                          
                         aligned_pil_rgb = align_image_general(
                             image_pil,
                             src_pts=c_coords,
@@ -642,6 +644,8 @@ def main(
                                 np.array(circle_coords),
                                 np.array(circles_ref[row_num * columns + col_num]),
                             )
+
+                            print(f"Row Num: {row_num}, Col Num: {col_num}")
 
                             aligned_pil_rgb = align_image_general(
                                 image_pil,
