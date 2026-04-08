@@ -489,7 +489,7 @@ def main(
                         print(f"Circle Coords: {circle_coords}, {circle_coords.shape}")
                         print(f"Ref Coords: {circles_ref}")
 
-                        print(list(*zip(*circles_ref)))
+                        print(f"List: {list(*zip(*circles_ref))}")
 
                         #debug visualization
                         print("Visualization Here")
@@ -667,7 +667,7 @@ def main(
                             print(f"Circle Coords: {circle_coords}, {circle_coords.shape}")
                             print(f"Ref Coords: {circles_ref}")
 
-                            print(list(*zip(*circles_ref)))
+                            print(f"List: {list(*zip(*circles_ref))}")
                             
                             #debug visualization
                             print("Visualization Here")
