@@ -458,6 +458,10 @@ def main(
                     if is_baseline:
                         circles_ref.append(np.array([[0, 0]]))
                 else:
+
+                    if row_num == 3 and (col_num == 4 or col_num == 5):
+                        plt.imshow(image_pil)
+
                     # Detect using BGR float32
                     tile_bgr_f32 = tile_bgr_u8.astype(np.float32)
         
@@ -616,6 +620,10 @@ def main(
                         if is_baseline:
                             circles_ref.append(np.array([[0, 0]]))
                     else:
+
+                        if row_num == 3 and (col_num == 4 or col_num == 5):
+                            plt.imshow(image_pil)
+
                         # Detect using BGR float32
                         tile_bgr_f32 = tile_bgr_u8.astype(np.float32)
             
