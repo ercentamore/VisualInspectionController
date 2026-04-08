@@ -487,7 +487,7 @@ def main(
                             np.array(circles_ref[row_num * columns + col_num]),
                         )
                         print(f"Circle Coords: {circle_coords}, {circle_coords.shape}")
-                        print(f"Ref Coords: {circles_ref}, {circles_ref.shape}")
+                        print(f"Ref Coords: {circles_ref}, {np.array(circles_ref).shape}")
 
                         #debug visualization
                         print("Visualization Here")
@@ -663,7 +663,7 @@ def main(
                                 np.array(circles_ref[row_num * columns + col_num]),
                             )
                             print(f"Circle Coords: {circle_coords}, {circle_coords.shape}")
-                            print(f"Ref Coords: {circles_ref}, {circles_ref.shape}")
+                            print(f"Ref Coords: {circles_ref}, {np.array(circles_ref).shape}")
                             
                             #debug visualization
                             print("Visualization Here")
