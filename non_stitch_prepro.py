@@ -489,6 +489,8 @@ def main(
                         print(f"Circle Coords: {circle_coords}, {circle_coords.shape}")
                         print(f"Ref Coords: {circles_ref}")
 
+                        print(list(*zip(*circles_ref)))
+
                         #debug visualization
                         print("Visualization Here")
                         fig, ax = plt.subplots(1,2,figsize=(10,5))
@@ -664,6 +666,8 @@ def main(
                             )
                             print(f"Circle Coords: {circle_coords}, {circle_coords.shape}")
                             print(f"Ref Coords: {circles_ref}")
+
+                            print(list(*zip(*circles_ref)))
                             
                             #debug visualization
                             print("Visualization Here")
