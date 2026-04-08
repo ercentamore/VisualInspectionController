@@ -482,10 +482,12 @@ def main(
                         clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
                         circles_ref.append(circle_coords)
                     else:
-                        # c_coords, c_ref = bidirectional_match(
-                        #     np.array(circle_coords),
-                        #     np.array(circles_ref[row_num * columns + col_num]),
-                        # )
+                        c_coords, c_ref = bidirectional_match(
+                            np.array(circle_coords),
+                            np.array(circles_ref[row_num * columns + col_num]),
+                        )
+                        print(f"Circle Coords: {circle_coords}, {circle_coords.shape}")
+                        print(f"Ref Coords: {circles_ref}, {circles_ref.shape}")
 
                         #debug visualization
                         print("Visualization Here")
@@ -493,8 +495,6 @@ def main(
                         ax[0].imshow(image_pil,  cmap='gray', vmin=0, vmax=255)
                         # ax[0].set_title('Reference Image')
                         ax[0].axis('off')
-
-                        print(f"circles_ref: {zip(*circles_ref)}") #debug statement for lack of second positional argument
 
                         ax[1].imshow(image_pil,  cmap='gray', vmin=0, vmax=255)
                         if (len(circles_ref) > 0):
@@ -658,19 +658,19 @@ def main(
                             clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
                             circles_ref.append(circle_coords)
                         else:
-                            # c_coords, c_ref = bidirectional_match(
-                            #     np.array(circle_coords),
-                            #     np.array(circles_ref[row_num * columns + col_num]),
-                            # )
-
+                            c_coords, c_ref = bidirectional_match(
+                                np.array(circle_coords),
+                                np.array(circles_ref[row_num * columns + col_num]),
+                            )
+                            print(f"Circle Coords: {circle_coords}, {circle_coords.shape}")
+                            print(f"Ref Coords: {circles_ref}, {circles_ref.shape}")
+                            
                             #debug visualization
                             print("Visualization Here")
                             fig, ax = plt.subplots(1,2,figsize=(10,5))
                             ax[0].imshow(image_pil,  cmap='gray', vmin=0, vmax=255)
                             # ax[0].set_title('Reference Image')
                             ax[0].axis('off')
-
-                            print(f"circles_ref: {zip(*circles_ref)}") #debug for lack of second positional argument
 
                             ax[1].imshow(image_pil,  cmap='gray', vmin=0, vmax=255)
                             if (len(circles_ref) > 0):
