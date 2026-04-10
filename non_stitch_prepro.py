@@ -576,6 +576,7 @@ def main(
                 (7, 4)
             }
 
+            print(f"Folder ID: {folder_id}")
             print(f"File ID: {file_id}")
 
             if not is_baseline:
@@ -604,6 +605,9 @@ def main(
             )
             for row_num, row in enumerate(images):
                 for col_num, _ in enumerate(row):
+
+                    print(f"Row: {row_num} Column: {col_num}")
+
                     # Raw tile as BGR (OpenCV convention)
                     tile_bgr_u8 = images[row_num, col_num].astype(np.uint8)
                     tile_bgr_u8 = tile_bgr_u8[:, :, ::-1]
