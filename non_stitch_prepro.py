@@ -636,21 +636,21 @@ def main(
                             mode="soft",   # or "strict" if you pass per-channel thresholds
                         )
 
-                        # print(f"Circle Coords Before Centralizing: {circle_coords}")
+                        print(f"Circle Coords Before Centralizing: {circle_coords}")
 
                         circle_coords = keep_central_circles(
                             circle_coords, tile_bgr_u8, x_clip=0, y_clip=0
                         )
             
-                        # print(f"Circle Coords After Centralizing: {circle_coords}")
+                        print(f"Circle Coords After Centralizing: {circle_coords}")
 
                         circle_coords = circle_coords[
                             np.lexsort((circle_coords[:, 1], circle_coords[:, 0]))
                         ]
             
-                        # print(f"Circle Coords After Sorting: {circle_coords}")
+                        print(f"Circle Coords After Sorting: {circle_coords}")
 
-                        # print(f"Ref Coords: {np.array(circles_ref[row_num*columns + col_num])})")
+                        print(f"Ref Coords: {np.array(circles_ref[row_num*columns + col_num])})")
 
                         if is_baseline:
                             clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
