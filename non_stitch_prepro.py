@@ -639,7 +639,7 @@ def main(
                         print(f"Circle Coords Before Centralizing: {circle_coords}")
 
                         circle_coords = keep_central_circles(
-                            circle_coords, tile_bgr_u8, x_clip=150, y_clip=150
+                            circle_coords, tile_bgr_u8, x_clip=0, y_clip=0
                         )
             
                         print(f"Circle Coords After Centralizing: {circle_coords}")
