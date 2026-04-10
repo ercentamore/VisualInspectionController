@@ -520,9 +520,11 @@ def main(
             folder_id = out_folder
             file_path = f"NEW {file_name}"
 
-            stream = io.BytesIO(adjusted_clipped_images.encode('utf-8'))
+            buffer = io.BytesIO()
+            np.save(buffer, adjusted_clipped_images)  # Saves in .npy format
+            buffer.seek(0)
 
-            new_file = client.folder(folder_id).upload_stream(stream, file_path)
+            new_file = client.folder(folder_id).upload_stream(buffer, file_path)
             print(f'File "{new_file.name}" uploaded with ID {new_file.id}')
 
     if id_type == 'folder':
@@ -695,9 +697,11 @@ def main(
                 folder_id = out_folder
                 file_path = f"NEW {file_name}"
 
-                stream = io.BytesIO(adjusted_clipped_images.encode('utf-8'))
+                buffer = io.BytesIO()
+                np.save(buffer, adjusted_clipped_images)  # Saves in .npy format
+                buffer.seek(0)
 
-                new_file = client.folder(folder_id).upload_stream(stream, file_path)
+                new_file = client.folder(folder_id).upload_stream(buffer, file_path)
                 print(f'File "{new_file.name}" uploaded with ID {new_file.id}')
 
             continue
