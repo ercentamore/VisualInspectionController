@@ -653,6 +653,7 @@ def main(
                                 np.array(circles_ref[row_num * columns + col_num]),
                             )
 
+                            print("check")
                             print(f"C_Coords: {c_coords.shape} C_Ref: {c_ref.shape}")
 
                             aligned_pil_rgb = align_image_general(
