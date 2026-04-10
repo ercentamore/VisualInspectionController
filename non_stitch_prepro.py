@@ -420,7 +420,7 @@ def main(
         if not is_baseline:
             with open("./circles_ref.pkl", "rb") as f:
                 circles_ref = pkl.load(f)
-            print(f"Circles ref length: {len(circles_ref)}")
+            # print(f"Circles ref length: {len(circles_ref)}")
         else:
             circles_ref = []
             print("Creating Baseline Images")
@@ -582,7 +582,7 @@ def main(
             if not is_baseline:
                 with open("./circles_ref.pkl", "rb") as f:
                     circles_ref = pkl.load(f)
-                print(f"Circles ref length: {len(circles_ref)}")
+                # print(f"Circles ref length: {len(circles_ref)}")
             else:
                 circles_ref = []
                 print("Creating Baseline Image")
@@ -650,7 +650,7 @@ def main(
             
                         # print(f"Circle Coords After Sorting: {circle_coords}")
 
-                        print(f"Ref Coords: {np.array(circles_ref[row_num*columns + col_num])})")
+                        # print(f"Ref Coords: {np.array(circles_ref[row_num*columns + col_num])})")
 
                         if is_baseline:
                             clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
@@ -661,8 +661,8 @@ def main(
                                 np.array(circles_ref[row_num * columns + col_num]),
                             )
 
-                            print("check")
-                            print(f"C_Coords: {c_coords.shape} C_Ref: {c_ref.shape}")
+                            # print("check")
+                            # print(f"C_Coords: {c_coords.shape} C_Ref: {c_ref.shape}")
 
                             aligned_pil_rgb = align_image_general(
                                 image_pil,
