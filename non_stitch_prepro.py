@@ -518,7 +518,6 @@ def main(
             print("output folder exists")
             logger.debug("Saving...")
             folder_id = out_folder
-            file_name = file_ids['name']
             file_path = f"NEW {file_name}"
 
             new_file = client.folder(folder_id).upload(file_path)
@@ -692,7 +691,6 @@ def main(
                 print("output folder exists")
                 logger.debug("Saving...")
                 folder_id = out_folder
-                file_name = file_ids['name']
                 file_path = f"NEW {file_name}"
 
                 new_file = client.folder(folder_id).upload(file_path)
