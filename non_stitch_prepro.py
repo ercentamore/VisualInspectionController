@@ -644,6 +644,8 @@ def main(
                             np.lexsort((circle_coords[:, 1], circle_coords[:, 0]))
                         ]
             
+                        print(f"Ref Coords: {np.array(circles_ref[row_num*columns + col_num])})")
+
                         if is_baseline:
                             clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
                             circles_ref.append(circle_coords)
