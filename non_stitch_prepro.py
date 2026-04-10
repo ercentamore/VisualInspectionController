@@ -520,7 +520,7 @@ def main(
             folder_id = out_folder
             file_path = f"NEW {file_name}"
 
-            new_file = client.folder(folder_id).upload(file_path)
+            new_file = client.folder(folder_id).upload(adjusted_clipped_images, file_path)
             print(f'File "{new_file.name}" uploaded with ID {new_file.id}')
 
     if id_type == 'folder':
@@ -693,7 +693,7 @@ def main(
                 folder_id = out_folder
                 file_path = f"NEW {file_name}"
 
-                new_file = client.folder(folder_id).upload(file_path)
+                new_file = client.folder(folder_id).upload(adjusted_clipped_images, file_path)
                 print(f'File "{new_file.name}" uploaded with ID {new_file.id}')
 
             continue
