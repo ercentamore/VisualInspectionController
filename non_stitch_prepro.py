@@ -756,8 +756,8 @@ if __name__ == "__main__":
     else:
         print("Please provide a Box folder ID for output")
 
-    vert_clip_fraction = 0.05
-    horz_clip_fraction = 0.05
+    vert_clip_fraction = 0.025
+    horz_clip_fraction = 0.025
     kernel_size = 84
 
     main(
