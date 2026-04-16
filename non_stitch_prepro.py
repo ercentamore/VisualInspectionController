@@ -633,8 +633,8 @@ def main(
                         circle_coords = get_circles(
                             circle_kernel,
                             tile_bgr_f32,
-                            pos_thresh=23,
-                            neg_thresh=102,
+                            pos_thresh=25,
+                            neg_thresh=105,
                             pixels_to_shrink=10,
                             mode="soft",   # or "strict" if you pass per-channel thresholds
                         )
@@ -674,7 +674,7 @@ def main(
                             )
 
                             # print("check")
-                            # print(f"C_Coords: {c_coords.shape} C_Ref: {c_ref.shape}")
+                            print(f"Circle Coords after BD match: {c_coords} C_Ref: {c_ref}")
 
                             aligned_pil_rgb = align_image_general(
                                 image_pil,
