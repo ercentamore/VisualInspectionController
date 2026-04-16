@@ -633,7 +633,7 @@ def main(
                         circle_coords = get_circles(
                             circle_kernel,
                             tile_bgr_f32,
-                            pos_thresh=32,
+                            pos_thresh=22,
                             neg_thresh=115,
                             pixels_to_shrink=10,
                             mode="soft",   # or "strict" if you pass per-channel thresholds
@@ -765,8 +765,8 @@ if __name__ == "__main__":
     else:
         print("Please provide a Box folder ID for output")
 
-    vert_clip_fraction = 0.025
-    horz_clip_fraction = 0.025
+    vert_clip_fraction = 0.01
+    horz_clip_fraction = 0.01
     kernel_size = 84
 
     main(
