@@ -633,7 +633,7 @@ def main(
                         circle_coords = get_circles(
                             circle_kernel,
                             tile_bgr_f32,
-                            pos_thresh=30,
+                            pos_thresh=25,
                             neg_thresh=100,
                             pixels_to_shrink=10,
                             mode="soft",   # or "strict" if you pass per-channel thresholds
