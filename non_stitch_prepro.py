@@ -659,6 +659,8 @@ def main(
                             ax.scatter(*zip(*circle_coords), c='r', s=50, marker='x')
                         else:
                             print("No corners found")
+                        
+                        plt.show()
 
                         # print(f"Ref Coords: {np.array(circles_ref[row_num*columns + col_num])})")
 
