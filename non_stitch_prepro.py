@@ -633,8 +633,8 @@ def main(
                         circle_coords = get_circles(
                             circle_kernel,
                             tile_bgr_f32,
-                            pos_thresh=37,
-                            neg_thresh=115,
+                            pos_thresh=32,
+                            neg_thresh=125,
                             pixels_to_shrink=10,
                             mode="soft",   # or "strict" if you pass per-channel thresholds
                         )
@@ -642,7 +642,7 @@ def main(
                         print(f"Circle Coords Before Centralizing: {circle_coords}")
 
                         circle_coords = keep_central_circles(
-                            circle_coords, tile_bgr_u8, x_clip=0, y_clip=0
+                            circle_coords, tile_bgr_u8, x_clip=5, y_clip=5
                         )
             
                         print(f"Circle Coords After Centralizing: {circle_coords}")
