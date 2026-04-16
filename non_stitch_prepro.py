@@ -653,6 +653,13 @@ def main(
             
                         print(f"Circle Coords After Sorting: {circle_coords}")
 
+                        fig, ax = plt.subplots(1,1,figsize=(10,5))
+                        ax.imshow(tile_bgr_u8,  cmap='gray', vmin=0, vmax=255)
+                        if len(circles_ref > 0):
+                            ax.scatter(*zip(*circle_coords), c='r', s=50, marker='x')
+                        else:
+                            print("No corners found")
+
                         # print(f"Ref Coords: {np.array(circles_ref[row_num*columns + col_num])})")
 
                         if is_baseline:
