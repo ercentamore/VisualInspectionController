@@ -196,7 +196,7 @@ def crop_image(img, x_clip, y_clip):
 
 
 def blob_centers(
-    det_mask: np.ndarray, approx_marker_area: int = 84, split_large: bool = True
+    det_mask: np.ndarray, approx_marker_area: int = 48*48, split_large: bool = True
 ) -> np.ndarray:
     det_uint = det_mask.astype(np.uint8)
 
