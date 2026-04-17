@@ -212,7 +212,6 @@ def blob_centers(
 
         if split_large and area > 3 * approx_marker_area:
             dist = cv2.distanceTransform(blob, cv2.DIST_L2, 3)
-            print(f"Dist: {dist}")
 
             local_max = dist == cv2.dilate(dist, None)
             local_max &= dist > 0.4 * dist.max()
@@ -235,7 +234,7 @@ def blob_centers(
         ys, xs = np.where(blob)
         centres.append([int(xs.mean()), int(ys.mean())])
 
-    return np.asarray(centres, dtype=int)  # shape (N, 2)
+    return np.asarray(centres, dtype=int), dist  # shape (N, 2)
 
 
 def get_circles(
@@ -278,7 +277,8 @@ def get_circles(
     else:
         raise ValueError(f"Unknown mode '{mode}'")
 
-    circle_coords = blob_centers(det, approx_marker_area=84, split_large=False)
+    circle_coords, dist = blob_centers(det, approx_marker_area=48*48, split_large=False)
+    print(f"dist:{dist}")
     return circle_coords
 
 
