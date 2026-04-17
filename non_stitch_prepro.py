@@ -212,6 +212,7 @@ def blob_centers(
 
         if split_large and area > 3 * approx_marker_area:
             dist = cv2.distanceTransform(blob, cv2.DIST_L2, 3)
+            print(f"Dist: {dist}")
 
             local_max = dist == cv2.dilate(dist, None)
             local_max &= dist > 0.4 * dist.max()
