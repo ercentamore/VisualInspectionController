@@ -769,7 +769,7 @@ if __name__ == "__main__":
 
     vert_clip_fraction = 0.01
     horz_clip_fraction = 0.01
-    kernel_size = 84
+    kernel_size = 103
 
     main(
         dev_token,
