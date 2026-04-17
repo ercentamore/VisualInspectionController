@@ -671,8 +671,8 @@ def main(
 
                             fig, ax = plt.subplots(1,1,figsize=(10,5))
                             ax.imshow(tile_bgr_u8,  cmap='gray', vmin=0, vmax=255)
-                            if (len(circles_ref) > 0):
-                                ax.scatter(*zip(*circle_coords), c='r', s=50, marker='x')
+                            if (len(c_ref) > 0):
+                                ax.scatter(*zip(*c_coords), c='r', s=50, marker='x')
                             else:
                                 print("No corners found")
                             
