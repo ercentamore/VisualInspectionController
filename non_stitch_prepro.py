@@ -210,30 +210,31 @@ def blob_centers(
         area = stats[lbl, cv2.CC_STAT_AREA]
         blob = (labels == lbl).astype(np.uint8)
 
-        if split_large and area > 3 * approx_marker_area:
-            dist = cv2.distanceTransform(blob, cv2.DIST_L2, 3)
+        # if split_large and area > 3 * approx_marker_area:
+        #     dist = cv2.distanceTransform(blob, cv2.DIST_L2, 3)
 
-            local_max = dist == cv2.dilate(dist, None)
-            local_max &= dist > 0.4 * dist.max()
+        #     local_max = dist == cv2.dilate(dist, None)
+        #     local_max &= dist > 0.4 * dist.max()
 
-            seeds = np.zeros_like(dist, np.int32)
-            seeds[local_max] = np.arange(1, np.count_nonzero(local_max) + 1)
+        #     seeds = np.zeros_like(dist, np.int32)
+        #     seeds[local_max] = np.arange(1, np.count_nonzero(local_max) + 1)
 
-            blob_rgb = cv2.merge([blob * 255] * 3)
-            cv2.watershed(blob_rgb, seeds)
+        #     blob_rgb = cv2.merge([blob * 255] * 3)
+        #     cv2.watershed(blob_rgb, seeds)
 
-            for sub_lbl in range(1, seeds.max() + 1):
-                ys, xs = np.where(seeds == sub_lbl)
-                if xs.size == 0:
-                    continue
-                idx = np.argmax(dist[ys, xs])
-                centres.append([xs[idx], ys[idx]])
-            continue
+        #     for sub_lbl in range(1, seeds.max() + 1):
+        #         ys, xs = np.where(seeds == sub_lbl)
+        #         if xs.size == 0:
+        #             continue
+        #         idx = np.argmax(dist[ys, xs])
+        #         centres.append([xs[idx], ys[idx]])
+        #     continue
 
-        dist = cv2.distanceTransform(blob, cv2.DIST_L2, 3)
-        ys, xs = np.where(blob)
-        centres.append([int(xs.mean()), int(ys.mean())])
+        # dist = cv2.distanceTransform(blob, cv2.DIST_L2, 3)
+        # ys, xs = np.where(blob)
+        # centres.append([int(xs.mean()), int(ys.mean())])
 
+        centres.append(blob)
     return np.asarray(centres, dtype=int)  # shape (N, 2)
 
 
