@@ -650,17 +650,6 @@ def main(
                         circle_coords = circle_coords[
                             np.lexsort((circle_coords[:, 1], circle_coords[:, 0]))
                         ]
-            
-                        print(f"Circle Coords After Sorting: {circle_coords}")
-
-                        fig, ax = plt.subplots(1,1,figsize=(10,5))
-                        ax.imshow(tile_bgr_u8,  cmap='gray', vmin=0, vmax=255)
-                        if (len(circles_ref) > 0):
-                            ax.scatter(*zip(*circle_coords), c='r', s=50, marker='x')
-                        else:
-                            print("No corners found")
-                        
-                        plt.show()
 
                         # print(f"Ref Coords: {np.array(circles_ref[row_num*columns + col_num])})")
 
@@ -675,6 +664,18 @@ def main(
 
                             # print("check")
                             print(f"Circle Coords after BD match: {c_coords} C_Ref: {c_ref}")
+
+                            
+                            print(f"Circle Coords After Sorting: {circle_coords}")
+
+                            fig, ax = plt.subplots(1,1,figsize=(10,5))
+                            ax.imshow(tile_bgr_u8,  cmap='gray', vmin=0, vmax=255)
+                            if (len(circles_ref) > 0):
+                                ax.scatter(*zip(*circle_coords), c='r', s=50, marker='x')
+                            else:
+                                print("No corners found")
+                            
+                            plt.show()
 
                             aligned_pil_rgb = align_image_general(
                                 image_pil,
