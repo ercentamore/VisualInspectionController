@@ -636,7 +636,7 @@ def main(
                             tile_bgr_f32,
                             pos_thresh=29,
                             neg_thresh=81,
-                            pixels_to_shrink=1,
+                            pixels_to_shrink=0,
                             mode="soft",   # or "strict" if you pass per-channel thresholds
                         )
 
