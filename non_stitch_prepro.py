@@ -547,6 +547,8 @@ def main(
                 file_ids['id'].append(imgfile.id)
         print(f"File IDs: {file_ids['id']}")
 
+        all_figures = []
+
         for idx in range(len(file_ids['id'])):
             print(f"File Index: {idx}/{len(file_ids['id'])}")
             file_name = file_ids['name'][idx]
@@ -725,8 +727,31 @@ def main(
                 new_file = client.folder(folder_id).upload_stream(buffer, file_path)
                 print(f'File "{new_file.name}" uploaded with ID {new_file.id}')
 
+                from matplotlib.backends.backend_pdf import PdfPages
+                import pathlib
+                from pathlib import Path
+                
+                fig, axes = plt.subplots(tile_bgr_u8.shape[0], tile_bgr_u8.shape[1], figsize = (100, 160), dpi=50)
+                for i in range(tile_bgr_u8.shape[0]):
+                    for j in range(tile_bgr_u8.shape[1]):
+                        image = Image.fromarray(tile_bgr_u8[-i-1][-j-1]) # this is used to identify skip segments. use array[i][-j-1] to display unprocessed data intuitively.
+                        axes[i][j].imshow(image)
+                        axes[i][j].axis('off')
+                plt.tight_layout(h_pad = -450.0, w_pad = 0.5)
+                
+                all_figures.append(plt.gcf())
+            
             continue
+        
+        output_filename = 'adjusted_boards.pdf'
 
+        with PdfPages(output_filename) as pdf:
+            for fig in all_figures:
+                pdf.savefig(fig, bbox_inches='tight') # bbox_inches='tight' helps prevent labels from being cut off
+                plt.close(fig)
+
+        download_path = Path.home() / "Downloads" / "adjusted_boards.pdf"
+        pdf.output(str(download_path))
 
 if __name__ == "__main__":
 
