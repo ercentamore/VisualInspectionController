@@ -657,6 +657,16 @@ def main(
                         if is_baseline:
                             clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
                             circles_ref.append(circle_coords)
+
+                            fig, ax = plt.subplots(1,1,figsize=(10,5))
+                            ax.imshow(tile_bgr_u8,  cmap='gray', vmin=0, vmax=255)
+                            if (len(circle_coords) > 0):
+                                ax.scatter(*zip(*circle_coords), c='r', s=50, marker='x')
+                            else:
+                                print("No corners found")
+                            
+                            plt.show()
+
                         else:
                             c_coords, c_ref = bidirectional_match(
                                 np.array(circle_coords),
