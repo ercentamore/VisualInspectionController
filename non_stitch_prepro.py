@@ -538,14 +538,11 @@ def main(
             'id':[]
         }
         for folder in data_folder:
-        #save the name of the folder
             file_ids['name'].append(folder.name)
-            #get file in the folder
             numpy_file = client.folder(folder.id).get_items()
-            #save the id of the file
             for imgfile in numpy_file:
                 file_ids['id'].append(imgfile.id)
-        print(f"File IDs: {file_ids['id']}")
+        # print(f"File IDs: {file_ids['id']}")
 
         for idx in range(len(file_ids['id'])):
             print(f"File Index: {idx}/{len(file_ids['id'])}")
@@ -564,7 +561,7 @@ def main(
             horz_clip = math.floor(total_image_shape[1] * horz_clip_fraction)
             rows = len(images)
             columns = len(images[0])
-            print(f"num cols: {columns}")
+            # print(f"num cols: {columns}")
 
             skip_set = {
                 (0, 0),
@@ -622,7 +619,7 @@ def main(
                     # PIL image must be RGB
                     tile_rgb_u8 = cv2.cvtColor(tile_bgr_u8, cv2.COLOR_BGR2RGB)
                     image_pil = Image.fromarray(tile_rgb_u8)
-                    print("PIL img created")
+                    # print("PIL img created")
             
                     if (row_num, col_num) in skip_set:
                         clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
@@ -643,13 +640,13 @@ def main(
                             mode="soft",   # or "strict" if you pass per-channel thresholds
                         )
 
-                        print(f"Circle Coords Before Centralizing: {circle_coords}")
+                        # print(f"Circle Coords Before Centralizing: {circle_coords}")
 
                         circle_coords = keep_central_circles(
                             circle_coords, tile_bgr_u8, x_clip=5, y_clip=5
                         )
             
-                        print(f"Circle Coords After Centralizing: {circle_coords}")
+                        # print(f"Circle Coords After Centralizing: {circle_coords}")
 
                         circle_coords = circle_coords[
                             np.lexsort((circle_coords[:, 1], circle_coords[:, 0]))
@@ -661,14 +658,14 @@ def main(
                             clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
                             circles_ref.append(circle_coords)
 
-                            fig, ax = plt.subplots(1,1,figsize=(10,5))
-                            ax.imshow(tile_bgr_u8,  cmap='gray', vmin=0, vmax=255)
-                            if (len(circle_coords) > 0):
-                                ax.scatter(*zip(*circle_coords), c='r', s=50, marker='x')
-                            else:
-                                print("No corners found")
+                            # fig, ax = plt.subplots(1,1,figsize=(10,5))
+                            # ax.imshow(tile_bgr_u8,  cmap='gray', vmin=0, vmax=255)
+                            # if (len(circle_coords) > 0):
+                            #     ax.scatter(*zip(*circle_coords), c='r', s=50, marker='x')
+                            # else:
+                            #     print("No corners found")
                             
-                            plt.show()
+                            # plt.show()
 
                         else:
                             c_coords, c_ref = bidirectional_match(
@@ -680,16 +677,16 @@ def main(
                             print(f"Circle Coords after BD match: {c_coords} C_Ref: {c_ref}")
 
                             
-                            print(f"Circle Coords After Sorting: {circle_coords}")
+                            # print(f"Circle Coords After Sorting: {circle_coords}")
 
-                            fig, ax = plt.subplots(1,1,figsize=(10,5))
-                            ax.imshow(tile_bgr_u8,  cmap='gray', vmin=0, vmax=255)
-                            if (len(c_ref) > 0):
-                                ax.scatter(*zip(*c_coords), c='r', s=50, marker='x')
-                            else:
-                                print("No corners found")
+                            # fig, ax = plt.subplots(1,1,figsize=(10,5))
+                            # ax.imshow(tile_bgr_u8,  cmap='gray', vmin=0, vmax=255)
+                            # if (len(c_ref) > 0):
+                            #     ax.scatter(*zip(*c_coords), c='r', s=50, marker='x')
+                            # else:
+                            #     print("No corners found")
                             
-                            plt.show()
+                            # plt.show()
 
                             if (len(c_coords) < 2):
                                 file_info = [row_num, col_num, file_name]
