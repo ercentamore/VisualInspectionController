@@ -607,6 +607,9 @@ def main(
                 ),
                 dtype=np.uint8,
             )
+
+            poor_scans = []
+
             for row_num, row in enumerate(images):
                 for col_num, _ in enumerate(row):
 
@@ -689,7 +692,7 @@ def main(
                             plt.show()
 
                             if (len(c_coords) < 2):
-                                print(f"Poor Scan: Segment ({row_num},{col_num}) on Board [[{file_name}]]")
+                                poor_scans.append({row_num},{col_num},{file_name})
                                 clipped_img = crop_image(tile_bgr_u8[:, :, 0, 0, :], horz_clip, vert_clip)
                             else:
                                 aligned_pil_rgb = align_image_general(
