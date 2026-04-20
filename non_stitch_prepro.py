@@ -694,7 +694,7 @@ def main(
                             if (len(c_coords) < 2):
                                 file_info = [row_num, col_num, file_name]
                                 poor_scans.append(file_info)
-                                clipped_img = crop_image(tile_bgr_u8[:, :, 0, 0, :], horz_clip, vert_clip)
+                                clipped_img = crop_image(tile_bgr_u8[:, :, ::-1], horz_clip, vert_clip)
                             else:
                                 aligned_pil_rgb = align_image_general(
                                     image_pil,
