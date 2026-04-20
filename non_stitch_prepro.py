@@ -688,17 +688,21 @@ def main(
                             
                             plt.show()
 
-                            aligned_pil_rgb = align_image_general(
-                                image_pil,
-                                src_pts=c_coords,
-                                dst_pts=c_ref,
-                                debug_id=f"r{row_num:02d}_c{col_num:02d}",
-                            )
-            
-                            aligned_rgb = np.asarray(aligned_pil_rgb)
-                            aligned_bgr = cv2.cvtColor(aligned_rgb, cv2.COLOR_RGB2BGR)
-            
-                            clipped_img = crop_image(aligned_bgr, horz_clip, vert_clip)
+                            if (len(c_coords) < 2):
+                                print(f"Poor Scan: Segment ({row_num},{col_num}) on Board [[{file_name}]]")
+                                clipped_img = crop_image(tile_bgr_u8[:, :, 0, 0, :], horz_clip, vert_clip)
+                            else:
+                                aligned_pil_rgb = align_image_general(
+                                    image_pil,
+                                    src_pts=c_coords,
+                                    dst_pts=c_ref,
+                                    debug_id=f"r{row_num:02d}_c{col_num:02d}",
+                                )
+                
+                                aligned_rgb = np.asarray(aligned_pil_rgb)
+                                aligned_bgr = cv2.cvtColor(aligned_rgb, cv2.COLOR_RGB2BGR)
+                
+                                clipped_img = crop_image(aligned_bgr, horz_clip, vert_clip)
             
                     adjusted_clipped_images[rows - row_num - 1][col_num] = clipped_img
                     pbar.update()
