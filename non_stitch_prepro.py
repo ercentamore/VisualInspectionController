@@ -713,6 +713,8 @@ def main(
             #     print(f"Failed for {row_num}, {col_num}")
             pbar.close()
 
+            print(f"Poor Segments: {poor_scans}")
+
             if is_baseline:
                 print("Saving Baseline Image")
                 np.save(os.path.join("./", "ref_image_array.npy"), adjusted_clipped_images)
