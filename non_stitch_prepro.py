@@ -635,7 +635,7 @@ def main(
                             circle_kernel,
                             tile_bgr_f32,
                             pos_thresh=32,
-                            neg_thresh=90,
+                            neg_thresh=100,
                             pixels_to_shrink=3,
                             mode="soft",   # or "strict" if you pass per-channel thresholds
                         )
