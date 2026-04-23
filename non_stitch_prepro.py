@@ -151,14 +151,14 @@ def align_image_general(
     return Image.fromarray(warped)
 
 
-def get_circle_pattern(size_px: int, dpi: int = 200) -> np.ndarray:
-    fig = plt.figure(figsize=(size_px / dpi, size_px / dpi), dpi=dpi)
+def get_circle_pattern(size_px: int, dpi: int = 72) -> np.ndarray:
+    fig = plt.figure(figsize=(2, 2), dpi=dpi)
     fig.patch.set_facecolor("black")
     ax = fig.add_axes([0, 0, 1, 1])
     ax.set_facecolor("black")
     ax.set_axis_off()
 
-    ax.scatter([0.5], [0.5], marker="o", s=size_px**2 / 20, c="white", linewidths=0)
+    ax.scatter([0.5], [0.5], marker="o", s=3.14*((size_px//2)**2), c="white", linewidths=0)
 
     fig.canvas.draw()
     rgba = np.asarray(fig.canvas.buffer_rgba())  # (H, W, 4)
