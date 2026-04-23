@@ -531,6 +531,7 @@ def main(
     if id_type == 'folder':
 
         folder_id = imgs_id
+        name_list= []
 
         data_folder = client.folder(folder_id).get_items(limit=1000)
         file_ids = {
@@ -729,8 +730,11 @@ def main(
                 np.save(buffer, adjusted_clipped_images)  # Saves in .npy format
                 buffer.seek(0)
 
+                name_list.append(file_path)
+
                 new_file = client.folder(folder_id).upload_stream(buffer, file_path)
                 print(f'File "{new_file.name}" uploaded with ID {new_file.id}')
+                print(name_list)
 
             continue
 
