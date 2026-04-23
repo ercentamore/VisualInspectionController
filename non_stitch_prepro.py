@@ -658,14 +658,14 @@ def main(
                             clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
                             circles_ref.append(circle_coords)
 
-                            # fig, ax = plt.subplots(1,1,figsize=(10,5))
-                            # ax.imshow(tile_bgr_u8,  cmap='gray', vmin=0, vmax=255)
-                            # if (len(circle_coords) > 0):
-                            #     ax.scatter(*zip(*circle_coords), c='r', s=50, marker='x')
-                            # else:
-                            #     print("No corners found")
+                            fig, ax = plt.subplots(1,1,figsize=(10,5))
+                            ax.imshow(tile_bgr_u8,  cmap='gray', vmin=0, vmax=255)
+                            if (len(circle_coords) > 0):
+                                ax.scatter(*zip(*circle_coords), c='r', s=50, marker='x')
+                            else:
+                                print("No corners found")
                             
-                            # plt.show()
+                            plt.show()
 
                         else:
                             c_coords, c_ref = bidirectional_match(
@@ -677,16 +677,16 @@ def main(
                             print(f"Circle Coords after BD match: {c_coords} C_Ref: {c_ref}")
 
                             
-                            # print(f"Circle Coords After Sorting: {circle_coords}")
+                            print(f"Circle Coords After Sorting: {circle_coords}")
 
-                            # fig, ax = plt.subplots(1,1,figsize=(10,5))
-                            # ax.imshow(tile_bgr_u8,  cmap='gray', vmin=0, vmax=255)
-                            # if (len(c_ref) > 0):
-                            #     ax.scatter(*zip(*c_coords), c='r', s=50, marker='x')
-                            # else:
-                            #     print("No corners found")
+                            fig, ax = plt.subplots(1,1,figsize=(10,5))
+                            ax.imshow(tile_bgr_u8,  cmap='gray', vmin=0, vmax=255)
+                            if (len(c_ref) > 0):
+                                ax.scatter(*zip(*c_coords), c='r', s=50, marker='x')
+                            else:
+                                print("No corners found")
                             
-                            # plt.show()
+                            plt.show()
 
                             if (len(c_coords) < 2):
                                 file_info = [row_num, col_num, file_name]
