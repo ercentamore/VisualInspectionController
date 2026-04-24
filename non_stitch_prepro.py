@@ -533,6 +533,14 @@ def main(
         folder_id = imgs_id
         name_list= []
 
+        data_folder = client.folder(out_folder).get_items(limit=1000)
+        prev_file_names = {
+            'name':[],
+            }
+        for folder in data_folder:
+            prev_file_names['name'].append(folder.name)
+        print(prev_file_names)
+
         data_folder = client.folder(folder_id).get_items(limit=1000)
         file_ids = {
             'name':[],
@@ -550,193 +558,198 @@ def main(
             file_name = file_ids['name'][idx]
             file_id = file_ids['id'][idx]
 
-            numpy_file = client.file(file_id).get()
-            file_stream = io.BytesIO()
-            numpy_file.download_to(file_stream)
-            file_stream.seek(0)
-            images = np.load(file_stream)
-
-            circle_kernel = get_circle_pattern(kernel_size)
-            total_image_shape = images[0][0].shape
-            vert_clip = math.floor(total_image_shape[0] * vert_clip_fraction)
-            horz_clip = math.floor(total_image_shape[1] * horz_clip_fraction)
-            rows = len(images)
-            columns = len(images[0])
-            # print(f"num cols: {columns}")
-
-            skip_set = {
-                (0, 0),
-                (0, 4),
-                (1, 0),
-                (1, 4),
-                (2, 0),
-                (5, 0),
-                (5, 4), 
-                (6, 0), 
-                (6, 4),
-                (7, 0),
-                (7, 4)
-            }
-
-            print(f"Folder ID: {folder_id}")
-            print(f"File ID: {file_id}")
-
-            if not is_baseline:
-                with open("./circles_ref.pkl", "rb") as f:
-                    circles_ref = pkl.load(f)
-                # print(f"Circles ref length: {len(circles_ref)}")
+            if file_name in prev_file_names:
+                print(f"Image {file_id} already aligned. Going to next image.")
+                continue
             else:
-                circles_ref = []
-                print("Creating Baseline Image")
+                print("Aligning Image")
+                numpy_file = client.file(file_id).get()
+                file_stream = io.BytesIO()
+                numpy_file.download_to(file_stream)
+                file_stream.seek(0)
+                images = np.load(file_stream)
 
-            logger.debug(
-                f"Clipping images, from {total_image_shape} to {vert_clip}, {horz_clip} (fractions {vert_clip_fraction}, {horz_clip_fraction})"
-            )
-            pbar = tqdm.tqdm(desc="Clipping Images", total=rows * columns)
+                circle_kernel = get_circle_pattern(kernel_size)
+                total_image_shape = images[0][0].shape
+                vert_clip = math.floor(total_image_shape[0] * vert_clip_fraction)
+                horz_clip = math.floor(total_image_shape[1] * horz_clip_fraction)
+                rows = len(images)
+                columns = len(images[0])
+                # print(f"num cols: {columns}")
 
-            # try:
-            adjusted_clipped_images = np.zeros(
-                (
-                    rows,
-                    columns,
-                    total_image_shape[0] - 2 * vert_clip,
-                    total_image_shape[1] - 2 * horz_clip,
-                    3,
-                ),
-                dtype=np.uint8,
-            )
+                skip_set = {
+                    (0, 0),
+                    (0, 4),
+                    (1, 0),
+                    (1, 4),
+                    (2, 0),
+                    (5, 0),
+                    (5, 4), 
+                    (6, 0), 
+                    (6, 4),
+                    (7, 0),
+                    (7, 4)
+                }
 
-            poor_scans = []
+                print(f"Folder ID: {folder_id}")
+                print(f"File ID: {file_id}")
 
-            for row_num, row in enumerate(images):
-                for col_num, _ in enumerate(row):
+                if not is_baseline:
+                    with open("./circles_ref.pkl", "rb") as f:
+                        circles_ref = pkl.load(f)
+                    # print(f"Circles ref length: {len(circles_ref)}")
+                else:
+                    circles_ref = []
+                    print("Creating Baseline Image")
 
-                    print(f"Row: {row_num} Column: {col_num}")
+                logger.debug(
+                    f"Clipping images, from {total_image_shape} to {vert_clip}, {horz_clip} (fractions {vert_clip_fraction}, {horz_clip_fraction})"
+                )
+                pbar = tqdm.tqdm(desc="Clipping Images", total=rows * columns)
 
-                    # Raw tile as BGR (OpenCV convention)
-                    tile_bgr_u8 = images[row_num, col_num].astype(np.uint8)
-                    tile_bgr_u8 = tile_bgr_u8[:, :, ::-1]
-            
-                    # PIL image must be RGB
-                    tile_rgb_u8 = cv2.cvtColor(tile_bgr_u8, cv2.COLOR_BGR2RGB)
-                    image_pil = Image.fromarray(tile_rgb_u8)
-                    # print("PIL img created")
-            
-                    if (row_num, col_num) in skip_set:
-                        clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
-                        print(f"image [{row_num}, {col_num}] skipped")
-                        if is_baseline:
-                            circles_ref.append(np.array([[0, 0]]))
-                    else:
+                # try:
+                adjusted_clipped_images = np.zeros(
+                    (
+                        rows,
+                        columns,
+                        total_image_shape[0] - 2 * vert_clip,
+                        total_image_shape[1] - 2 * horz_clip,
+                        3,
+                    ),
+                    dtype=np.uint8,
+                )
 
-                        # Detect using BGR float32
-                        tile_bgr_f32 = tile_bgr_u8.astype(np.float32)
-            
-                        circle_coords = get_circles(
-                            circle_kernel,
-                            tile_bgr_f32,
-                            pos_thresh=50,
-                            neg_thresh=115,
-                            pixels_to_shrink=3,
-                            mode="soft",   # or "strict" if you pass per-channel thresholds
-                        )
+                poor_scans = []
 
-                        # print(f"Circle Coords Before Centralizing: {circle_coords}")
+                for row_num, row in enumerate(images):
+                    for col_num, _ in enumerate(row):
 
-                        circle_coords = keep_central_circles(
-                            circle_coords, tile_bgr_u8, x_clip=5, y_clip=5
-                        )
-            
-                        # print(f"Circle Coords After Centralizing: {circle_coords}")
+                        print(f"Row: {row_num} Column: {col_num}")
 
-                        circle_coords = circle_coords[
-                            np.lexsort((circle_coords[:, 1], circle_coords[:, 0]))
-                        ]
-
-                        # print(f"Ref Coords: {np.array(circles_ref[row_num*columns + col_num])})")
-
-                        if is_baseline:
+                        # Raw tile as BGR (OpenCV convention)
+                        tile_bgr_u8 = images[row_num, col_num].astype(np.uint8)
+                        tile_bgr_u8 = tile_bgr_u8[:, :, ::-1]
+                
+                        # PIL image must be RGB
+                        tile_rgb_u8 = cv2.cvtColor(tile_bgr_u8, cv2.COLOR_BGR2RGB)
+                        image_pil = Image.fromarray(tile_rgb_u8)
+                        # print("PIL img created")
+                
+                        if (row_num, col_num) in skip_set:
                             clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
-                            circles_ref.append(circle_coords)
-
-                            fig, ax = plt.subplots(1,1,figsize=(10,5))
-                            ax.imshow(tile_bgr_u8,  cmap='gray', vmin=0, vmax=255)
-                            if (len(circle_coords) > 0):
-                                ax.scatter(*zip(*circle_coords), c='r', s=50, marker='x')
-                            else:
-                                print("No corners found")
-                            
-                            plt.show()
-
+                            print(f"image [{row_num}, {col_num}] skipped")
+                            if is_baseline:
+                                circles_ref.append(np.array([[0, 0]]))
                         else:
-                            c_coords, c_ref = bidirectional_match(
-                                np.array(circle_coords),
-                                np.array(circles_ref[row_num * columns + col_num]),
+
+                            # Detect using BGR float32
+                            tile_bgr_f32 = tile_bgr_u8.astype(np.float32)
+                
+                            circle_coords = get_circles(
+                                circle_kernel,
+                                tile_bgr_f32,
+                                pos_thresh=50,
+                                neg_thresh=115,
+                                pixels_to_shrink=3,
+                                mode="soft",   # or "strict" if you pass per-channel thresholds
                             )
 
-                            # print("check")
-                            print(f"Circle Coords after BD match: {c_coords} C_Ref: {c_ref}")
+                            # print(f"Circle Coords Before Centralizing: {circle_coords}")
 
-                            
-                            print(f"Circle Coords After Sorting: {circle_coords}")
+                            circle_coords = keep_central_circles(
+                                circle_coords, tile_bgr_u8, x_clip=5, y_clip=5
+                            )
+                
+                            # print(f"Circle Coords After Centralizing: {circle_coords}")
 
-                            fig, ax = plt.subplots(1,1,figsize=(10,5))
-                            ax.imshow(tile_bgr_u8,  cmap='gray', vmin=0, vmax=255)
-                            if (len(c_ref) > 0):
-                                ax.scatter(*zip(*c_coords), c='r', s=50, marker='x')
+                            circle_coords = circle_coords[
+                                np.lexsort((circle_coords[:, 1], circle_coords[:, 0]))
+                            ]
+
+                            # print(f"Ref Coords: {np.array(circles_ref[row_num*columns + col_num])})")
+
+                            if is_baseline:
+                                clipped_img = crop_image(tile_bgr_u8, horz_clip, vert_clip)
+                                circles_ref.append(circle_coords)
+
+                                fig, ax = plt.subplots(1,1,figsize=(10,5))
+                                ax.imshow(tile_bgr_u8,  cmap='gray', vmin=0, vmax=255)
+                                if (len(circle_coords) > 0):
+                                    ax.scatter(*zip(*circle_coords), c='r', s=50, marker='x')
+                                else:
+                                    print("No corners found")
+                                
+                                plt.show()
+
                             else:
-                                print("No corners found")
-                            
-                            plt.show()
-
-                            if (len(c_coords) < 2):
-                                file_info = [row_num, col_num, file_name]
-                                poor_scans.append(file_info)
-                                clipped_img = crop_image(tile_bgr_u8[:, :, ::-1], horz_clip, vert_clip)
-                            else:
-                                aligned_pil_rgb = align_image_general(
-                                    image_pil,
-                                    src_pts=c_coords,
-                                    dst_pts=c_ref,
-                                    debug_id=f"r{row_num:02d}_c{col_num:02d}",
+                                c_coords, c_ref = bidirectional_match(
+                                    np.array(circle_coords),
+                                    np.array(circles_ref[row_num * columns + col_num]),
                                 )
+
+                                # print("check")
+                                print(f"Circle Coords after BD match: {c_coords} C_Ref: {c_ref}")
+
+                                
+                                print(f"Circle Coords After Sorting: {circle_coords}")
+
+                                fig, ax = plt.subplots(1,1,figsize=(10,5))
+                                ax.imshow(tile_bgr_u8,  cmap='gray', vmin=0, vmax=255)
+                                if (len(c_ref) > 0):
+                                    ax.scatter(*zip(*c_coords), c='r', s=50, marker='x')
+                                else:
+                                    print("No corners found")
+                                
+                                plt.show()
+
+                                if (len(c_coords) < 2):
+                                    file_info = [row_num, col_num, file_name]
+                                    poor_scans.append(file_info)
+                                    clipped_img = crop_image(tile_bgr_u8[:, :, ::-1], horz_clip, vert_clip)
+                                else:
+                                    aligned_pil_rgb = align_image_general(
+                                        image_pil,
+                                        src_pts=c_coords,
+                                        dst_pts=c_ref,
+                                        debug_id=f"r{row_num:02d}_c{col_num:02d}",
+                                    )
+                    
+                                    aligned_rgb = np.asarray(aligned_pil_rgb)
+                                    aligned_bgr = cv2.cvtColor(aligned_rgb, cv2.COLOR_RGB2BGR)
+                    
+                                    clipped_img = crop_image(aligned_bgr, horz_clip, vert_clip)
                 
-                                aligned_rgb = np.asarray(aligned_pil_rgb)
-                                aligned_bgr = cv2.cvtColor(aligned_rgb, cv2.COLOR_RGB2BGR)
-                
-                                clipped_img = crop_image(aligned_bgr, horz_clip, vert_clip)
-            
-                    adjusted_clipped_images[rows - row_num - 1][col_num] = clipped_img
-                    pbar.update()
-            # except:
-            #     print(f"Failed for {row_num}, {col_num}")
-            pbar.close()
+                        adjusted_clipped_images[rows - row_num - 1][col_num] = clipped_img
+                        pbar.update()
+                # except:
+                #     print(f"Failed for {row_num}, {col_num}")
+                pbar.close()
 
-            print(f"Poor Segments: {poor_scans}")
+                print(f"Poor Segments: {poor_scans}")
 
-            if is_baseline:
-                print("Saving Baseline Image")
-                np.save(os.path.join("./", "ref_image_array.npy"), adjusted_clipped_images)
-                with open("circles_ref.pkl", "wb") as file:
-                    pkl.dump(circles_ref, file)
-                is_baseline = False
-            elif out_folder is not None:
-                print("output folder exists")
-                logger.debug("Saving...")
-                folder_id = out_folder
-                file_path = f"NEW {file_name}"
+                if is_baseline:
+                    print("Saving Baseline Image")
+                    np.save(os.path.join("./", "ref_image_array.npy"), adjusted_clipped_images)
+                    with open("circles_ref.pkl", "wb") as file:
+                        pkl.dump(circles_ref, file)
+                    is_baseline = False
+                elif out_folder is not None:
+                    print("output folder exists")
+                    logger.debug("Saving...")
+                    folder_id = out_folder
+                    file_path = f"NEW {file_name}"
 
-                buffer = io.BytesIO()
-                np.save(buffer, adjusted_clipped_images)  # Saves in .npy format
-                buffer.seek(0)
+                    buffer = io.BytesIO()
+                    np.save(buffer, adjusted_clipped_images)  # Saves in .npy format
+                    buffer.seek(0)
 
-                name_list.append(file_path)
+                    name_list.append(file_path)
 
-                new_file = client.folder(folder_id).upload_stream(buffer, file_path)
-                print(f'File "{new_file.name}" uploaded with ID {new_file.id}')
-                print(name_list)
+                    new_file = client.folder(folder_id).upload_stream(buffer, file_path)
+                    print(f'File "{new_file.name}" uploaded with ID {new_file.id}')
+                    print(name_list)
 
-            continue
+                continue
 
 
 if __name__ == "__main__":
