@@ -534,9 +534,8 @@ def main(
         name_list= []
 
         data_folder = client.folder(out_folder).get_items(limit=1000)
-        prev_file_names = {
-            'name':[],
-            }
+        prev_file_names = []
+
         for folder in data_folder:
             prev_file_names['name'].append(folder.name)
         print(prev_file_names)
@@ -558,7 +557,9 @@ def main(
             file_name = file_ids['name'][idx]
             file_id = file_ids['id'][idx]
 
-            if file_name in prev_file_names:
+            has_match = any(file_name in s for s in prev_file_names)
+
+            if has_match: 
                 print(f"Image {file_id} already aligned. Going to next image.")
                 continue
             else:
