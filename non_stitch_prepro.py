@@ -537,7 +537,7 @@ def main(
         prev_file_names = []
 
         for folder in data_folder:
-            prev_file_names['name'].append(folder.name)
+            prev_file_names.append(folder.name)
         print(prev_file_names)
 
         data_folder = client.folder(folder_id).get_items(limit=1000)
