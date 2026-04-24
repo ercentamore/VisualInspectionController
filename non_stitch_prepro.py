@@ -560,10 +560,10 @@ def main(
             has_match = any(file_name in s for s in prev_file_names)
 
             if has_match: 
-                print(f"Image {file_id} already aligned. Going to next image.")
+                print(f"Image {file_name} already aligned. Going to next image.")
                 continue
             else:
-                print("Aligning Image")
+                print(f"Aligning Image {file_name}")
                 numpy_file = client.file(file_id).get()
                 file_stream = io.BytesIO()
                 numpy_file.download_to(file_stream)
